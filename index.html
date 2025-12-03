@@ -225,6 +225,12 @@
             transform: scale(1.05);
             box-shadow: 0 6px 25px rgba(233, 69, 96, 0.6);
         }
+
+        .enter-hint {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            margin-top: 0.75rem;
+        }
     </style>
 </head>
 <body>
@@ -238,6 +244,7 @@
             <p id="gameOverReason">The ball fell off the platform!</p>
             <p>Your time: <span id="finalTime">0</span> seconds</p>
             <button class="restart-btn" onclick="restartGame()">PLAY AGAIN</button>
+            <p class="enter-hint">or press ENTER</p>
         </div>
     </div>
 
@@ -295,6 +302,7 @@
         let startTime = Date.now();
         let bestTime = parseFloat(localStorage.getItem('balanceBest') || '0');
         let gameOverReason = '';
+        let finalTime = 0;
 
         // Scrolling and obstacles
         const scrollSpeed = 1.5;
@@ -428,6 +436,8 @@
             suckStartPos = { x: ball.x, y: ball.y };
             suckStartRadius = ball.radius;
             suckParticles = [];
+            // Capture the time now, before animation plays
+            finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
         }
 
         function updateSuckingAnimation() {
@@ -581,6 +591,11 @@
                 keys[key] = false;
                 document.getElementById('key' + key.toUpperCase()).classList.remove('active');
             }
+            
+            // Enter key to restart when game is over
+            if (e.key === 'Enter' && !gameRunning) {
+                restartGame();
+            }
         });
 
         function updatePlatform() {
@@ -661,6 +676,7 @@
             if (ball.y > canvas.height + ball.radius || 
                 ball.x < -ball.radius || 
                 ball.x > canvas.width + ball.radius) {
+                finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
                 gameOver('The ball fell off the platform!');
             }
         }
@@ -732,38 +748,6 @@
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
             ctx.lineWidth = 2;
             ctx.stroke();
-
-            // Edge indicators
-            drawEdgeIndicator(platform.x, leftY, platform.leftHeight);
-            drawEdgeIndicator(platform.x + platform.width, rightY, platform.rightHeight);
-        }
-
-        function drawEdgeIndicator(x, y, height) {
-            // Vertical indicator line
-            ctx.beginPath();
-            ctx.moveTo(x, platform.y);
-            ctx.lineTo(x, y);
-            ctx.strokeStyle = height > 0 ? 'rgba(0, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            // Arrow
-            const arrowSize = 8;
-            ctx.fillStyle = height > 0 ? '#00ff64' : '#ff6464';
-            ctx.beginPath();
-            if (Math.abs(height) > 5) {
-                if (height > 0) {
-                    ctx.moveTo(x, y - arrowSize);
-                    ctx.lineTo(x - arrowSize, y + arrowSize);
-                    ctx.lineTo(x + arrowSize, y + arrowSize);
-                } else {
-                    ctx.moveTo(x, y + arrowSize);
-                    ctx.lineTo(x - arrowSize, y - arrowSize);
-                    ctx.lineTo(x + arrowSize, y - arrowSize);
-                }
-                ctx.closePath();
-                ctx.fill();
-            }
         }
 
         function drawTrail() {
@@ -834,8 +818,12 @@
         }
 
         function updateUI() {
-            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-            document.getElementById('timeDisplay').textContent = elapsed;
+            if (gameRunning && !beingSucked) {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                document.getElementById('timeDisplay').textContent = elapsed;
+            } else if (finalTime) {
+                document.getElementById('timeDisplay').textContent = finalTime;
+            }
             document.getElementById('bestDisplay').textContent = bestTime.toFixed(1);
             
             const angleDegrees = (getPlatformAngle() * 180 / Math.PI).toFixed(1);
@@ -845,7 +833,6 @@
         function gameOver(reason) {
             gameRunning = false;
             gameOverReason = reason || 'The ball fell off the platform!';
-            const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
             
             if (parseFloat(finalTime) > bestTime) {
                 bestTime = parseFloat(finalTime);
@@ -873,6 +860,7 @@
             suckingHole = null;
             suckProgress = 0;
             suckParticles = [];
+            finalTime = 0;
             startTime = Date.now();
             gameRunning = true;
             document.getElementById('gameOver').style.display = 'none';
