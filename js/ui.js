@@ -1,7 +1,7 @@
 // ==================== UI ====================
 // UI updates and settings management
 
-import { state, saveSettings, updateBestTime } from './state.js';
+import { state, saveSettings, updateBestScore } from './state.js';
 import { PLATFORM } from './config.js';
 import { getPlatformAngle, applyPlatformWidth } from './entities.js';
 
@@ -117,17 +117,16 @@ export function applySettingsToGame() {
 // ==================== GAME UI ====================
 
 export function updateUI() {
-    const { gameRunning, beingSucked, startTime, finalTime, bestTime, effects } = state;
+    const { gameRunning, beingSucked, score, finalScore, bestScore, effects } = state;
     
-    // Time display
+    // Score display
     if (gameRunning && !beingSucked) {
-        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-        document.getElementById('timeDisplay').textContent = elapsed;
-    } else if (finalTime) {
-        document.getElementById('timeDisplay').textContent = finalTime;
+        document.getElementById('scoreDisplay').textContent = score;
+    } else if (finalScore !== undefined) {
+        document.getElementById('scoreDisplay').textContent = finalScore;
     }
     
-    document.getElementById('bestDisplay').textContent = bestTime.toFixed(1);
+    document.getElementById('bestDisplay').textContent = bestScore;
     
     // Angle display
     const angleDegrees = (getPlatformAngle() * 180 / Math.PI).toFixed(1);
@@ -160,9 +159,9 @@ export function showGameOver(reason) {
     state.gameRunning = false;
     state.gameOverReason = reason || 'The ball fell off the platform!';
     
-    updateBestTime();
+    updateBestScore();
 
-    document.getElementById('finalTime').textContent = state.finalTime;
+    document.getElementById('finalScore').textContent = state.finalScore;
     document.getElementById('gameOverReason').textContent = state.gameOverReason;
     document.getElementById('gameOver').style.display = 'block';
 }
@@ -174,7 +173,7 @@ export function hideGameOver() {
 // ==================== INITIALIZATION ====================
 
 export function initUI() {
-    document.getElementById('bestDisplay').textContent = state.bestTime.toFixed(1);
+    document.getElementById('bestDisplay').textContent = state.bestScore;
     applySettingsToGame();
     updateSettingsUI();
 }

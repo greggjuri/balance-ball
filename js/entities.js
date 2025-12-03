@@ -1,7 +1,7 @@
 // ==================== ENTITIES ====================
 // Ball, Platform, and Black Holes logic
 
-import { CANVAS, PHYSICS, BALL, BLACK_HOLE, PLATFORM } from './config.js';
+import { CANVAS, PHYSICS, BALL, BLACK_HOLE, PLATFORM, SCORE_BALL } from './config.js';
 import { state } from './state.js';
 
 // ==================== PLATFORM ====================
@@ -111,7 +111,7 @@ export function updateBall() {
     if (ball.y > CANVAS.HEIGHT + ball.radius || 
         ball.x < -ball.radius || 
         ball.x > CANVAS.WIDTH + ball.radius) {
-        state.finalTime = ((Date.now() - state.startTime) / 1000).toFixed(1);
+        state.finalScore = state.score;
         return 'fell';
     }
     return null;
@@ -196,6 +196,68 @@ export function applyBlackHoleGravity() {
     }
 }
 
+// ==================== SCORE BALLS ====================
+
+export function spawnScoreBall() {
+    const types = Object.keys(SCORE_BALL.TYPES);
+    const typeKey = types[Math.floor(Math.random() * types.length)];
+    const type = SCORE_BALL.TYPES[typeKey];
+    
+    const radius = BALL.BASE_RADIUS * type.sizeMultiplier;
+    const x = radius + Math.random() * (CANVAS.WIDTH - radius * 2);
+    
+    state.scoreBalls.push({
+        x: x,
+        y: -radius,
+        radius: radius,
+        points: type.points,
+        speedMultiplier: type.speedMultiplier,
+        color: type.color,
+        glowColor: type.glowColor,
+        rotation: Math.random() * Math.PI * 2
+    });
+}
+
+export function updateScoreBalls() {
+    const { scoreBalls, effects } = state;
+    
+    // Spawn timer
+    state.scoreBallSpawnTimer++;
+    if (state.scoreBallSpawnTimer >= SCORE_BALL.SPAWN_INTERVAL) {
+        spawnScoreBall();
+        state.scoreBallSpawnTimer = 0;
+    }
+
+    // Move score balls (affected by time freeze)
+    const baseSpeed = effects.timeFreeze.active ? 0 : PHYSICS.SCROLL_SPEED;
+
+    for (let i = scoreBalls.length - 1; i >= 0; i--) {
+        const sb = scoreBalls[i];
+        sb.y += baseSpeed * sb.speedMultiplier;
+        sb.rotation += 0.02;
+
+        if (sb.y > CANVAS.HEIGHT + sb.radius) {
+            scoreBalls.splice(i, 1);
+        }
+    }
+}
+
+export function checkScoreBallCollision() {
+    const { ball, scoreBalls } = state;
+    
+    for (let i = scoreBalls.length - 1; i >= 0; i--) {
+        const sb = scoreBalls[i];
+        const dx = ball.x - sb.x;
+        const dy = ball.y - sb.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < ball.radius + sb.radius) {
+            state.score += sb.points;
+            scoreBalls.splice(i, 1);
+        }
+    }
+}
+
 // ==================== SUCKING ANIMATION ====================
 
 export function startSuckingAnimation(hole) {
@@ -206,7 +268,7 @@ export function startSuckingAnimation(hole) {
     state.suckStartPos = { x: ball.x, y: ball.y };
     state.suckStartRadius = ball.radius;
     state.suckParticles = [];
-    state.finalTime = ((Date.now() - state.startTime) / 1000).toFixed(1);
+    state.finalScore = state.score;
 }
 
 export function updateSuckingAnimation() {

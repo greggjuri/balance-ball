@@ -1,7 +1,7 @@
 // ==================== RENDERER ====================
 // All drawing and visual effects
 
-import { CANVAS, BLACK_HOLE, BALL_COLORS } from './config.js';
+import { CANVAS, BLACK_HOLE, BALL_COLORS, BALL } from './config.js';
 import { state } from './state.js';
 
 let ctx;
@@ -204,6 +204,64 @@ export function drawBlackHoles() {
             ctx.stroke();
             ctx.setLineDash([]);
         }
+    }
+}
+
+// ==================== SCORE BALLS ====================
+
+export function drawScoreBalls() {
+    const { scoreBalls, effects } = state;
+    
+    for (const sb of scoreBalls) {
+        ctx.save();
+        ctx.translate(sb.x, sb.y);
+        ctx.rotate(sb.rotation);
+        
+        // Frozen effect
+        const frozenAlpha = effects.timeFreeze.active ? 0.6 : 1;
+        
+        // Outer glow
+        const pulse = Math.sin(Date.now() * 0.008 + sb.x) * 0.15 + 1;
+        ctx.shadowColor = sb.glowColor;
+        ctx.shadowBlur = 15 * pulse;
+        
+        const glowGradient = ctx.createRadialGradient(0, 0, sb.radius * 0.3, 0, 0, sb.radius * 1.4 * pulse);
+        glowGradient.addColorStop(0, sb.color + '66');
+        glowGradient.addColorStop(1, sb.color + '00');
+        ctx.beginPath();
+        ctx.arc(0, 0, sb.radius * 1.4 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = glowGradient;
+        ctx.fill();
+        
+        // Main ball
+        const ballGradient = ctx.createRadialGradient(-sb.radius * 0.3, -sb.radius * 0.3, 0, 0, 0, sb.radius);
+        ballGradient.addColorStop(0, '#ffffff');
+        ballGradient.addColorStop(0.3, sb.color);
+        ballGradient.addColorStop(1, sb.glowColor);
+        
+        ctx.globalAlpha = frozenAlpha;
+        ctx.beginPath();
+        ctx.arc(0, 0, sb.radius, 0, Math.PI * 2);
+        ctx.fillStyle = ballGradient;
+        ctx.fill();
+        
+        // Inner shine
+        ctx.beginPath();
+        ctx.arc(-sb.radius * 0.25, -sb.radius * 0.25, sb.radius * 0.35, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.fill();
+        
+        // Points number
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = frozenAlpha;
+        ctx.fillStyle = '#000';
+        ctx.font = `bold ${sb.radius * 0.9}px Orbitron, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(sb.points.toString(), 0, 2);
+        
+        ctx.globalAlpha = 1;
+        ctx.restore();
     }
 }
 
@@ -876,6 +934,7 @@ export function render() {
     drawBackground();
     drawTimeFreezeEffect();
     drawBlackHoles();
+    drawScoreBalls();
     drawPowerUps();
     drawSuckParticles();
     drawTrail();

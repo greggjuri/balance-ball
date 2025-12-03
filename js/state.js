@@ -22,9 +22,10 @@ export const state = {
     // Game status
     gameRunning: true,
     startTime: Date.now(),
-    bestTime: parseFloat(localStorage.getItem('balanceBest') || '0'),
+    score: 0,
+    bestScore: parseFloat(localStorage.getItem('balanceBestScore') || '0'),
     gameOverReason: '',
-    finalTime: 0,
+    finalScore: 0,
 
     // Settings
     settings: loadSettings(),
@@ -60,6 +61,10 @@ export const state = {
     // Black holes
     blackHoles: [],
     spawnTimer: 0,
+
+    // Score balls
+    scoreBalls: [],
+    scoreBallSpawnTimer: 0,
 
     // Sucking animation
     beingSucked: false,
@@ -98,8 +103,9 @@ export const state = {
 export function resetState() {
     state.gameRunning = true;
     state.startTime = Date.now();
+    state.score = 0;
     state.gameOverReason = '';
-    state.finalTime = 0;
+    state.finalScore = 0;
 
     // Reset platform
     state.platform.tilt = 0;
@@ -115,11 +121,13 @@ export function resetState() {
     // Clear arrays
     state.trail.length = 0;
     state.blackHoles.length = 0;
+    state.scoreBalls.length = 0;
     state.powerUps.length = 0;
     state.suckParticles.length = 0;
 
     // Reset timers
     state.spawnTimer = 0;
+    state.scoreBallSpawnTimer = 0;
     state.powerUpSpawnTimer = 0;
 
     // Reset sucking state
@@ -137,10 +145,10 @@ export function resetState() {
     state.ballSizeState = 'normal';
 }
 
-// Update best time
-export function updateBestTime() {
-    if (parseFloat(state.finalTime) > state.bestTime) {
-        state.bestTime = parseFloat(state.finalTime);
-        localStorage.setItem('balanceBest', state.bestTime.toString());
+// Update best score
+export function updateBestScore() {
+    if (state.finalScore > state.bestScore) {
+        state.bestScore = state.finalScore;
+        localStorage.setItem('balanceBestScore', state.bestScore.toString());
     }
 }

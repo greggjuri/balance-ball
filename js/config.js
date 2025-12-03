@@ -48,6 +48,36 @@ export const POWERUP = {
     POWERDOWN_DURATION: 10000  // Power-downs last 10 seconds
 };
 
+export const SCORE_BALL = {
+    SPAWN_INTERVAL: 90,  // Spawn frequently
+    TYPES: {
+        // 1 point: large (black hole size), slow
+        large: { 
+            points: 1, 
+            sizeMultiplier: 2.0,  // Same as black hole (BASE_RADIUS * 2)
+            speedMultiplier: 1.0,
+            color: '#ffd700',      // Gold
+            glowColor: '#ffaa00'
+        },
+        // 3 points: medium (default ball size), moderate speed
+        medium: { 
+            points: 3, 
+            sizeMultiplier: 1.0,  // Same as player ball
+            speedMultiplier: 1.5,
+            color: '#50fa7b',      // Green
+            glowColor: '#00ff55'
+        },
+        // 5 points: small (shrunk ball size), fast
+        small: { 
+            points: 5, 
+            sizeMultiplier: 0.5,  // Same as shrunk ball
+            speedMultiplier: 2.0,
+            color: '#bd93f9',      // Purple/Diamond
+            glowColor: '#ff79c6'
+        }
+    }
+};
+
 export const DEFAULT_SETTINGS = {
     ballColor: 'red',
     platformWidth: 'normal',

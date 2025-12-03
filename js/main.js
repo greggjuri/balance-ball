@@ -11,7 +11,9 @@ import {
     checkBlackHoleCollision,
     startSuckingAnimation,
     updateSuckingAnimation,
-    applyPlatformWidth
+    applyPlatformWidth,
+    updateScoreBalls,
+    checkScoreBallCollision
 } from './entities.js';
 import { updatePowerUps, checkPowerUpCollision } from './powerups.js';
 import { initRenderer, render } from './renderer.js';
@@ -43,6 +45,7 @@ function gameLoop() {
         if (state.gameRunning) {
             if (state.beingSucked) {
                 updateBlackHoles();
+                updateScoreBalls();
                 updatePowerUps();
                 if (updateSuckingAnimation()) {
                     showGameOver('The ball was sucked into a black hole!');
@@ -56,6 +59,8 @@ function gameLoop() {
                 
                 applyBlackHoleGravity();
                 updateBlackHoles();
+                updateScoreBalls();
+                checkScoreBallCollision();
                 updatePowerUps();
                 checkPowerUpCollision();
                 
