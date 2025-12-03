@@ -231,11 +231,11 @@
     <h1>BALANCE BALL</h1>
     
     <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
         
         <div class="game-over" id="gameOver">
             <h2>GAME OVER!</h2>
-            <p>The ball fell off the platform!</p>
+            <p id="gameOverReason">The ball fell off the platform!</p>
             <p>Your time: <span id="finalTime">0</span> seconds</p>
             <button class="restart-btn" onclick="restartGame()">PLAY AGAIN</button>
         </div>
@@ -294,12 +294,19 @@
         let gameRunning = true;
         let startTime = Date.now();
         let bestTime = parseFloat(localStorage.getItem('balanceBest') || '0');
+        let gameOverReason = '';
+
+        // Scrolling and obstacles
+        const scrollSpeed = 1.5;
+        const blackHoles = [];
+        let spawnTimer = 0;
+        const spawnInterval = 120; // frames between spawns
 
         // Platform properties
         const platform = {
-            x: 175,
-            y: 250,
-            width: 450,
+            x: 225,
+            y: 450,
+            width: 350,
             height: 12,
             leftHeight: 0,
             rightHeight: 0,
@@ -310,7 +317,7 @@
         // Ball properties
         const ball = {
             x: 400,
-            y: 200,
+            y: 400,
             radius: 18,
             vx: 0,
             vy: 0,
@@ -335,6 +342,103 @@
         // Trail effect
         const trail = [];
         const maxTrailLength = 15;
+
+        // Black hole functions
+        function spawnBlackHole() {
+            const holeRadius = ball.radius * 2;
+            const x = holeRadius + Math.random() * (canvas.width - holeRadius * 2);
+            blackHoles.push({
+                x: x,
+                y: -holeRadius,
+                radius: holeRadius,
+                rotation: Math.random() * Math.PI * 2
+            });
+        }
+
+        function updateBlackHoles() {
+            spawnTimer++;
+            if (spawnTimer >= spawnInterval) {
+                spawnBlackHole();
+                spawnTimer = 0;
+            }
+
+            // Move black holes down and remove off-screen ones
+            for (let i = blackHoles.length - 1; i >= 0; i--) {
+                blackHoles[i].y += scrollSpeed;
+                blackHoles[i].rotation += 0.03;
+
+                // Remove if off screen
+                if (blackHoles[i].y > canvas.height + blackHoles[i].radius) {
+                    blackHoles.splice(i, 1);
+                }
+            }
+        }
+
+        function checkBlackHoleCollision() {
+            for (const hole of blackHoles) {
+                const dx = ball.x - hole.x;
+                const dy = ball.y - hole.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Ball enters black hole if its center is inside
+                if (distance < hole.radius) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function drawBlackHoles() {
+            for (const hole of blackHoles) {
+                // Outer glow
+                const gradient = ctx.createRadialGradient(
+                    hole.x, hole.y, 0,
+                    hole.x, hole.y, hole.radius * 1.5
+                );
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+                gradient.addColorStop(0.5, 'rgba(20, 0, 40, 0.8)');
+                gradient.addColorStop(0.7, 'rgba(60, 0, 100, 0.4)');
+                gradient.addColorStop(1, 'rgba(100, 0, 150, 0)');
+
+                ctx.beginPath();
+                ctx.arc(hole.x, hole.y, hole.radius * 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Main black hole
+                ctx.beginPath();
+                ctx.arc(hole.x, hole.y, hole.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#000';
+                ctx.fill();
+
+                // Swirling effect
+                ctx.save();
+                ctx.translate(hole.x, hole.y);
+                ctx.rotate(hole.rotation);
+                
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, hole.radius * 0.7, i * Math.PI * 2 / 3, i * Math.PI * 2 / 3 + Math.PI / 2);
+                    ctx.strokeStyle = `rgba(150, 50, 255, ${0.5 - i * 0.15})`;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+
+                // Inner highlight
+                ctx.beginPath();
+                ctx.arc(hole.x, hole.y, hole.radius * 0.3, 0, Math.PI * 2);
+                const innerGradient = ctx.createRadialGradient(
+                    hole.x, hole.y, 0,
+                    hole.x, hole.y, hole.radius * 0.3
+                );
+                innerGradient.addColorStop(0, 'rgba(100, 0, 150, 0.5)');
+                innerGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+                ctx.fillStyle = innerGradient;
+                ctx.fill();
+            }
+        }
 
         // Event listeners
         document.addEventListener('keydown', (e) => {
@@ -431,7 +535,7 @@
             if (ball.y > canvas.height + ball.radius || 
                 ball.x < -ball.radius || 
                 ball.x > canvas.width + ball.radius) {
-                gameOver();
+                gameOver('The ball fell off the platform!');
             }
         }
 
@@ -591,8 +695,9 @@
             document.getElementById('angleDisplay').textContent = angleDegrees + '°';
         }
 
-        function gameOver() {
+        function gameOver(reason) {
             gameRunning = false;
+            gameOverReason = reason || 'The ball fell off the platform!';
             const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
             
             if (parseFloat(finalTime) > bestTime) {
@@ -601,17 +706,20 @@
             }
 
             document.getElementById('finalTime').textContent = finalTime;
+            document.getElementById('gameOverReason').textContent = gameOverReason;
             document.getElementById('gameOver').style.display = 'block';
         }
 
         function restartGame() {
             ball.x = 400;
-            ball.y = 200;
+            ball.y = 400;
             ball.vx = 0;
             ball.vy = 0;
             platform.leftHeight = 0;
             platform.rightHeight = 0;
             trail.length = 0;
+            blackHoles.length = 0;
+            spawnTimer = 0;
             startTime = Date.now();
             gameRunning = true;
             document.getElementById('gameOver').style.display = 'none';
@@ -621,9 +729,16 @@
             if (gameRunning) {
                 updatePlatform();
                 updateBall();
+                updateBlackHoles();
+                
+                // Check black hole collision
+                if (checkBlackHoleCollision()) {
+                    gameOver('The ball was sucked into a black hole!');
+                }
             }
 
             drawBackground();
+            drawBlackHoles();
             drawTrail();
             drawPlatform();
             drawBall();
