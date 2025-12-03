@@ -44,7 +44,8 @@ export const BLACK_HOLE = {
 export const POWERUP = {
     SPAWN_INTERVAL: 450,
     RADIUS: 15,
-    DURATION: 7000  // All power-ups last 7 seconds
+    DURATION: 7000,         // Power-ups last 7 seconds
+    POWERDOWN_DURATION: 10000  // Power-downs last 10 seconds
 };
 
 export const DEFAULT_SETTINGS = {
@@ -56,7 +57,8 @@ export const DEFAULT_SETTINGS = {
     powerUpMagnet: true,
     powerUpShrinkBall: true,
     powerUpBigBallz: true,
-    powerUpTimeFreeze: true
+    powerUpTimeFreeze: true,
+    powerDownNarrowPlatform: true
 };
 
 export const BALL_COLORS = {
@@ -117,5 +119,13 @@ export const POWERUP_TYPES = {
         icon: '⏸️',
         color: '#00ffff',
         description: 'Black holes freeze'
+    },
+    // Power-downs (negative effects)
+    narrowPlatform: {
+        name: 'Narrow Platform',
+        icon: '📏',
+        color: '#ff3333',
+        description: 'Platform 30% narrower',
+        isPowerDown: true
     }
 };

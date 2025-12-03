@@ -36,12 +36,20 @@ export function applyPlatformWidth() {
     const oldWidth = platform.width;
     const centerX = platform.x + oldWidth / 2;
     
+    // Start with base width
+    let widthMultiplier = 1.0;
+    
     // Apply wide platform power-up if active (30% wider)
     if (effects.widePlatform.active) {
-        platform.width = state.basePlatformWidth * 1.3;
-    } else {
-        platform.width = state.basePlatformWidth;
+        widthMultiplier *= 1.3;
     }
+    
+    // Apply narrow platform power-down if active (30% narrower)
+    if (effects.narrowPlatform.active) {
+        widthMultiplier *= 0.7;
+    }
+    
+    platform.width = state.basePlatformWidth * widthMultiplier;
     
     // Recenter platform
     platform.x = centerX - platform.width / 2;

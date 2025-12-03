@@ -124,6 +124,22 @@
                 </div>
             </div>
 
+            <hr class="settings-divider">
+
+            <div class="setting-group">
+                <h3>Power-Downs</h3>
+                <div class="toggle-option powerup-option powerdown-option">
+                    <div class="powerup-info">
+                        <span class="powerup-icon">📏</span>
+                        <div class="powerup-text">
+                            <span class="toggle-label powerdown-label">Narrow Platform</span>
+                            <span class="powerup-desc">Platform shrinks 30% for 10 seconds</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="narrowPlatformToggle" onclick="togglePowerUp('narrowPlatform')"></div>
+                </div>
+            </div>
+
             <button class="settings-close" onclick="closeSettings()">SAVE & CLOSE</button>
         </div>
     </div>
@@ -183,6 +199,10 @@
             <div class="stat time-freeze-stat" style="display: none;">
                 <div class="stat-label">⏸️ Freeze</div>
                 <div class="stat-value time-freeze-value" id="timeFreezeDisplay">0.0s</div>
+            </div>
+            <div class="stat narrow-platform-stat" style="display: none;">
+                <div class="stat-label">📏 Narrow</div>
+                <div class="stat-value narrow-platform-value" id="narrowPlatformDisplay">0.0s</div>
             </div>
         </div>
 

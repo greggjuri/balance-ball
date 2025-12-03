@@ -11,12 +11,16 @@ export function spawnPowerUp() {
     const { settings } = state;
     const enabledTypes = [];
     
+    // Power-ups (good)
     if (settings.powerUpShield) enabledTypes.push('shield');
     if (settings.powerUpWidePlatform) enabledTypes.push('widePlatform');
     if (settings.powerUpMagnet) enabledTypes.push('magnet');
     if (settings.powerUpShrinkBall) enabledTypes.push('shrinkBall');
     if (settings.powerUpBigBallz) enabledTypes.push('bigBallz');
     if (settings.powerUpTimeFreeze) enabledTypes.push('timeFreeze');
+    
+    // Power-downs (bad)
+    if (settings.powerDownNarrowPlatform) enabledTypes.push('narrowPlatform');
     
     if (enabledTypes.length === 0) return;
     
@@ -74,6 +78,11 @@ export function updatePowerUps() {
 
     if (effects.timeFreeze.active && now > effects.timeFreeze.endTime) {
         effects.timeFreeze.active = false;
+    }
+
+    if (effects.narrowPlatform.active && now > effects.narrowPlatform.endTime) {
+        effects.narrowPlatform.active = false;
+        applyPlatformWidth();
     }
 }
 
@@ -151,6 +160,13 @@ export function activatePowerUp(type) {
         case 'timeFreeze':
             effects.timeFreeze.active = true;
             effects.timeFreeze.endTime = now + POWERUP.DURATION;
+            break;
+            
+        case 'narrowPlatform':
+            // Narrow Platform: shrinks platform 30% for 10 seconds
+            effects.narrowPlatform.active = true;
+            effects.narrowPlatform.endTime = now + POWERUP.POWERDOWN_DURATION;
+            applyPlatformWidth();
             break;
     }
 }

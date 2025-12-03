@@ -52,8 +52,11 @@ export function drawPlatform() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fill();
 
-    // Glow effect based on active power-up
-    if (effects.magnet.active) {
+    // Glow effect based on active power-up/power-down
+    if (effects.narrowPlatform.active) {
+        ctx.shadowColor = '#ff3333';
+        ctx.shadowBlur = 25;
+    } else if (effects.magnet.active) {
         ctx.shadowColor = '#ff6b35';
         ctx.shadowBlur = 25;
     } else if (effects.timeFreeze.active) {
@@ -66,7 +69,11 @@ export function drawPlatform() {
 
     // Platform gradient
     const gradient = ctx.createLinearGradient(platform.x, leftY, platform.x + platform.width, rightY);
-    if (effects.magnet.active) {
+    if (effects.narrowPlatform.active) {
+        gradient.addColorStop(0, '#ff3333');
+        gradient.addColorStop(0.5, '#cc2828');
+        gradient.addColorStop(1, '#ff3333');
+    } else if (effects.magnet.active) {
         gradient.addColorStop(0, '#ff6b35');
         gradient.addColorStop(0.5, '#cc5528');
         gradient.addColorStop(1, '#ff6b35');
@@ -232,6 +239,9 @@ export function drawPowerUps() {
             case 'timeFreeze':
                 drawTimeFreezePowerUp(pu);
                 break;
+            case 'narrowPlatform':
+                drawNarrowPlatformPowerUp(pu);
+                break;
         }
 
         ctx.restore();
@@ -306,7 +316,7 @@ function drawWidePlatformPowerUp(pu) {
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Arrows
+    // Arrows pointing outward
     ctx.beginPath();
     ctx.moveTo(-barWidth/2 - 6, 0);
     ctx.lineTo(-barWidth/2 - 2, -5);
@@ -321,6 +331,65 @@ function drawWidePlatformPowerUp(pu) {
     ctx.lineTo(barWidth/2 + 2, 5);
     ctx.closePath();
     ctx.fill();
+
+    ctx.shadowBlur = 0;
+}
+
+function drawNarrowPlatformPowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.008) * 0.2 + 1;  // Faster, more aggressive pulse
+    
+    ctx.shadowColor = '#ff3333';
+    ctx.shadowBlur = 18 * pulse;
+
+    // Outer glow - red/warning color
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, 'rgba(255, 51, 51, 0.5)');
+    glowGradient.addColorStop(1, 'rgba(255, 51, 51, 0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    const barWidth = pu.radius * 1.2;  // Narrower bar to represent shrinking
+    const barHeight = pu.radius * 0.4;
+    
+    ctx.beginPath();
+    ctx.roundRect(-barWidth/2, -barHeight/2, barWidth, barHeight, 3);
+    const barGradient = ctx.createLinearGradient(0, -barHeight/2, 0, barHeight/2);
+    barGradient.addColorStop(0, '#ff6666');
+    barGradient.addColorStop(0.5, '#ff3333');
+    barGradient.addColorStop(1, '#cc2828');
+    ctx.fillStyle = barGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#ffaaaa';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Arrows pointing inward (opposite of wide platform)
+    ctx.beginPath();
+    ctx.moveTo(-barWidth/2 - 8, 0);
+    ctx.lineTo(-barWidth/2 - 4, -5);
+    ctx.lineTo(-barWidth/2 - 4, 5);
+    ctx.closePath();
+    ctx.fillStyle = '#ffaaaa';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(barWidth/2 + 8, 0);
+    ctx.lineTo(barWidth/2 + 4, -5);
+    ctx.lineTo(barWidth/2 + 4, 5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Warning "X" or skull indicator in center
+    ctx.strokeStyle = '#880000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-3, -3);
+    ctx.lineTo(3, 3);
+    ctx.moveTo(3, -3);
+    ctx.lineTo(-3, 3);
+    ctx.stroke();
 
     ctx.shadowBlur = 0;
 }

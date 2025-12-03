@@ -203,6 +203,16 @@ h1 {
     color: #00ffff;
 }
 
+/* Narrow Platform (Power-Down) - Red/Warning color */
+.narrow-platform-stat .stat-value {
+    color: #ff3333;
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+
+.narrow-platform-stat .stat-label {
+    color: #ff3333;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;
@@ -491,4 +501,27 @@ h1 {
 .powerup-desc {
     font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.4);
+}
+
+/* Power-Down styling - red tint to indicate negative effect */
+.powerdown-option {
+    border-color: rgba(255, 51, 51, 0.3);
+    background: rgba(255, 51, 51, 0.05);
+}
+
+.powerdown-option:hover {
+    border-color: rgba(255, 51, 51, 0.5);
+    background: rgba(255, 51, 51, 0.1);
+}
+
+.powerdown-label {
+    color: #ff6666 !important;
+}
+
+.powerdown-option .toggle-switch.on {
+    background: rgba(255, 51, 51, 0.5);
+}
+
+.powerdown-option .toggle-switch.on::after {
+    background: #ff3333;
 }
