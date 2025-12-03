@@ -27,9 +27,12 @@ export const PLATFORM = {
 };
 
 export const BALL = {
-    INITIAL_Y: 400,
+    INITIAL_Y: 400,  // Starts above platform, falls down
     BASE_RADIUS: 18,
-    TRAIL_LENGTH: 15
+    TRAIL_LENGTH: 15,
+    SIZE_SHRUNK: 0.5,    // 50% of original
+    SIZE_NORMAL: 1.0,    // 100% (default)
+    SIZE_BIG: 1.4        // 140% of original
 };
 
 export const BLACK_HOLE = {
@@ -52,6 +55,7 @@ export const DEFAULT_SETTINGS = {
     powerUpWidePlatform: true,
     powerUpMagnet: true,
     powerUpShrinkBall: true,
+    powerUpBigBallz: true,
     powerUpTimeFreeze: true
 };
 
@@ -100,7 +104,13 @@ export const POWERUP_TYPES = {
         name: 'Shrink Ball',
         icon: '🔮',
         color: '#9932ff',
-        description: 'Ball 50% smaller'
+        description: 'Ball 50% smaller (permanent)'
+    },
+    bigBallz: {
+        name: 'Big Ballz',
+        icon: '🏀',
+        color: '#ff8c00',
+        description: 'Ball 40% bigger (permanent)'
     },
     timeFreeze: {
         name: 'Time Freeze',

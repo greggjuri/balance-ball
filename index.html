@@ -97,10 +97,20 @@
                         <span class="powerup-icon">🔮</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Shrink Ball</span>
-                            <span class="powerup-desc">Ball shrinks 50% for 7 seconds</span>
+                            <span class="powerup-desc">Ball shrinks 50% permanently (counters Big Ballz)</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="shrinkBallToggle" onclick="togglePowerUp('shrinkBall')"></div>
+                </div>
+                <div class="toggle-option powerup-option" style="margin-top: 0.5rem;">
+                    <div class="powerup-info">
+                        <span class="powerup-icon">🏀</span>
+                        <div class="powerup-text">
+                            <span class="toggle-label">Big Ballz</span>
+                            <span class="powerup-desc">Ball grows 40% permanently (counters Shrink Ball)</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="bigBallzToggle" onclick="togglePowerUp('bigBallz')"></div>
                 </div>
                 <div class="toggle-option powerup-option" style="margin-top: 0.5rem;">
                     <div class="powerup-info">
@@ -169,10 +179,6 @@
             <div class="stat magnet-stat" style="display: none;">
                 <div class="stat-label">🧲 Magnet</div>
                 <div class="stat-value magnet-value" id="magnetDisplay">0.0s</div>
-            </div>
-            <div class="stat shrink-ball-stat" style="display: none;">
-                <div class="stat-label">🔮 Shrink</div>
-                <div class="stat-value shrink-ball-value" id="shrinkBallDisplay">0.0s</div>
             </div>
             <div class="stat time-freeze-stat" style="display: none;">
                 <div class="stat-label">⏸️ Freeze</div>

@@ -73,14 +73,16 @@ export const state = {
     powerUps: [],
     powerUpSpawnTimer: 0,
 
-    // Active effects
+    // Active effects (timed)
     effects: {
         shield: { active: false, endTime: 0 },
         widePlatform: { active: false, endTime: 0 },
         magnet: { active: false, endTime: 0 },
-        shrinkBall: { active: false, endTime: 0 },
         timeFreeze: { active: false, endTime: 0 }
     },
+
+    // Ball size state: 'shrunk', 'normal', or 'big' (permanent until countered)
+    ballSizeState: 'normal',
 
     // Input state
     keys: {
@@ -129,6 +131,9 @@ export function resetState() {
         state.effects[key].active = false;
         state.effects[key].endTime = 0;
     }
+
+    // Reset ball size state
+    state.ballSizeState = 'normal';
 }
 
 // Update best time

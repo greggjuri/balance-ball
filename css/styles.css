@@ -194,15 +194,6 @@ h1 {
     color: #ff6b35;
 }
 
-.shrink-ball-stat .stat-value {
-    color: #9932ff;
-    text-shadow: 0 0 10px rgba(153, 50, 255, 0.5);
-}
-
-.shrink-ball-stat .stat-label {
-    color: #9932ff;
-}
-
 .time-freeze-stat .stat-value {
     color: #00ffff;
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);

@@ -27,18 +27,32 @@ export function closeSettingsOnOverlay(event) {
 export function updateSettingsUI() {
     const { settings } = state;
     
-    document.querySelectorAll('.setting-option').forEach(opt => {
-        const setting = opt.dataset.setting;
-        const value = opt.dataset.value;
-        opt.classList.toggle('selected', settings[setting] === value);
-    });
-    
-    document.getElementById('soundToggle').classList.toggle('on', settings.soundEnabled);
-    document.getElementById('shieldToggle').classList.toggle('on', settings.powerUpShield);
-    document.getElementById('widePlatformToggle').classList.toggle('on', settings.powerUpWidePlatform);
-    document.getElementById('magnetToggle').classList.toggle('on', settings.powerUpMagnet);
-    document.getElementById('shrinkBallToggle').classList.toggle('on', settings.powerUpShrinkBall);
-    document.getElementById('timeFreezeToggle').classList.toggle('on', settings.powerUpTimeFreeze);
+    try {
+        document.querySelectorAll('.setting-option').forEach(opt => {
+            const setting = opt.dataset.setting;
+            const value = opt.dataset.value;
+            opt.classList.toggle('selected', settings[setting] === value);
+        });
+        
+        // Toggle switches - use optional chaining in case elements don't exist
+        const soundToggle = document.getElementById('soundToggle');
+        const shieldToggle = document.getElementById('shieldToggle');
+        const widePlatformToggle = document.getElementById('widePlatformToggle');
+        const magnetToggle = document.getElementById('magnetToggle');
+        const shrinkBallToggle = document.getElementById('shrinkBallToggle');
+        const bigBallzToggle = document.getElementById('bigBallzToggle');
+        const timeFreezeToggle = document.getElementById('timeFreezeToggle');
+        
+        if (soundToggle) soundToggle.classList.toggle('on', settings.soundEnabled);
+        if (shieldToggle) shieldToggle.classList.toggle('on', settings.powerUpShield);
+        if (widePlatformToggle) widePlatformToggle.classList.toggle('on', settings.powerUpWidePlatform);
+        if (magnetToggle) magnetToggle.classList.toggle('on', settings.powerUpMagnet);
+        if (shrinkBallToggle) shrinkBallToggle.classList.toggle('on', settings.powerUpShrinkBall);
+        if (bigBallzToggle) bigBallzToggle.classList.toggle('on', settings.powerUpBigBallz);
+        if (timeFreezeToggle) timeFreezeToggle.classList.toggle('on', settings.powerUpTimeFreeze);
+    } catch (error) {
+        console.error('updateSettingsUI error:', error);
+    }
 }
 
 export function selectOption(element) {
@@ -68,6 +82,9 @@ export function togglePowerUp(type) {
             break;
         case 'shrinkBall':
             settings.powerUpShrinkBall = !settings.powerUpShrinkBall;
+            break;
+        case 'bigBallz':
+            settings.powerUpBigBallz = !settings.powerUpBigBallz;
             break;
         case 'timeFreeze':
             settings.powerUpTimeFreeze = !settings.powerUpTimeFreeze;
@@ -115,13 +132,14 @@ export function updateUI() {
     updateEffectDisplay('shield', 'shieldDisplay', effects.shield);
     updateEffectDisplay('widePlatform', 'widePlatformDisplay', effects.widePlatform);
     updateEffectDisplay('magnet', 'magnetDisplay', effects.magnet);
-    updateEffectDisplay('shrinkBall', 'shrinkBallDisplay', effects.shrinkBall);
     updateEffectDisplay('timeFreeze', 'timeFreezeDisplay', effects.timeFreeze);
 }
 
 function updateEffectDisplay(name, elementId, effect) {
     const display = document.getElementById(elementId);
-    if (effect.active) {
+    if (!display) return;  // Element might not exist
+    
+    if (effect && effect.active) {
         const remaining = Math.max(0, (effect.endTime - Date.now()) / 1000).toFixed(1);
         display.textContent = remaining + 's';
         display.parentElement.style.display = 'block';

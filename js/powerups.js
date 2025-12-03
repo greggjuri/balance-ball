@@ -15,6 +15,7 @@ export function spawnPowerUp() {
     if (settings.powerUpWidePlatform) enabledTypes.push('widePlatform');
     if (settings.powerUpMagnet) enabledTypes.push('magnet');
     if (settings.powerUpShrinkBall) enabledTypes.push('shrinkBall');
+    if (settings.powerUpBigBallz) enabledTypes.push('bigBallz');
     if (settings.powerUpTimeFreeze) enabledTypes.push('timeFreeze');
     
     if (enabledTypes.length === 0) return;
@@ -71,11 +72,6 @@ export function updatePowerUps() {
         effects.magnet.active = false;
     }
 
-    if (effects.shrinkBall.active && now > effects.shrinkBall.endTime) {
-        effects.shrinkBall.active = false;
-        state.ball.radius = BALL.BASE_RADIUS;
-    }
-
     if (effects.timeFreeze.active && now > effects.timeFreeze.endTime) {
         effects.timeFreeze.active = false;
     }
@@ -123,9 +119,33 @@ export function activatePowerUp(type) {
             break;
             
         case 'shrinkBall':
-            effects.shrinkBall.active = true;
-            effects.shrinkBall.endTime = now + POWERUP.DURATION;
-            ball.radius = BALL.BASE_RADIUS * 0.5;
+            // Shrink Ball: shrinks ball to 50% (permanent)
+            // If already shrunk -> no effect
+            // If normal -> shrink to 50%
+            // If big -> return to normal
+            if (state.ballSizeState === 'big') {
+                state.ballSizeState = 'normal';
+                ball.radius = BALL.BASE_RADIUS * BALL.SIZE_NORMAL;
+            } else if (state.ballSizeState === 'normal') {
+                state.ballSizeState = 'shrunk';
+                ball.radius = BALL.BASE_RADIUS * BALL.SIZE_SHRUNK;
+            }
+            // If already shrunk, no effect
+            break;
+            
+        case 'bigBallz':
+            // Big Ballz: grows ball to 140% (permanent)
+            // If already big -> no effect
+            // If normal -> grow to 140%
+            // If shrunk -> return to normal
+            if (state.ballSizeState === 'shrunk') {
+                state.ballSizeState = 'normal';
+                ball.radius = BALL.BASE_RADIUS * BALL.SIZE_NORMAL;
+            } else if (state.ballSizeState === 'normal') {
+                state.ballSizeState = 'big';
+                ball.radius = BALL.BASE_RADIUS * BALL.SIZE_BIG;
+            }
+            // If already big, no effect
             break;
             
         case 'timeFreeze':

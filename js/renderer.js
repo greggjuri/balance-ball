@@ -226,6 +226,9 @@ export function drawPowerUps() {
             case 'shrinkBall':
                 drawShrinkBallPowerUp(pu);
                 break;
+            case 'bigBallz':
+                drawBigBallzPowerUp(pu);
+                break;
             case 'timeFreeze':
                 drawTimeFreezePowerUp(pu);
                 break;
@@ -427,6 +430,92 @@ function drawShrinkBallPowerUp(pu) {
         ctx.lineTo(tx + Math.cos(headAngle - 0.5) * arrowSize, ty + Math.sin(headAngle - 0.5) * arrowSize);
         ctx.moveTo(tx, ty);
         ctx.lineTo(tx + Math.cos(headAngle + 0.5) * arrowSize, ty + Math.sin(headAngle + 0.5) * arrowSize);
+        ctx.stroke();
+    }
+
+    ctx.shadowBlur = 0;
+}
+
+function drawBigBallzPowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.005) * 0.15 + 1;
+    
+    ctx.shadowColor = '#ff8c00';
+    ctx.shadowBlur = 15 * pulse;
+
+    // Outer glow
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, 'rgba(255, 140, 0, 0.4)');
+    glowGradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Basketball-style ball
+    const ballRadius = pu.radius * 0.8;
+    const ballGradient = ctx.createRadialGradient(-ballRadius * 0.3, -ballRadius * 0.3, 0, 0, 0, ballRadius);
+    ballGradient.addColorStop(0, '#ffaa44');
+    ballGradient.addColorStop(0.5, '#ff8c00');
+    ballGradient.addColorStop(1, '#cc6600');
+    
+    ctx.beginPath();
+    ctx.arc(0, 0, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = ballGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#ffcc88';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Basketball lines
+    ctx.strokeStyle = '#804400';
+    ctx.lineWidth = 1.5;
+    
+    // Horizontal line
+    ctx.beginPath();
+    ctx.moveTo(-ballRadius, 0);
+    ctx.lineTo(ballRadius, 0);
+    ctx.stroke();
+    
+    // Vertical line
+    ctx.beginPath();
+    ctx.moveTo(0, -ballRadius);
+    ctx.lineTo(0, ballRadius);
+    ctx.stroke();
+    
+    // Curved lines
+    ctx.beginPath();
+    ctx.arc(-ballRadius * 0.3, 0, ballRadius * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.arc(ballRadius * 0.3, 0, ballRadius * 0.7, Math.PI * 0.6, Math.PI * 1.4);
+    ctx.stroke();
+
+    // Outward arrows to indicate growth
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    const arrowDist = ballRadius + 2;
+    const arrowEnd = pu.radius * 1.15;
+    const arrowSize = 4;
+    
+    for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI / 2) + Math.PI / 4;
+        const sx = Math.cos(angle) * arrowDist;
+        const sy = Math.sin(angle) * arrowDist;
+        const ex = Math.cos(angle) * arrowEnd;
+        const ey = Math.sin(angle) * arrowEnd;
+        
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+        
+        // Arrowhead pointing outward
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex + Math.cos(angle + Math.PI - 0.5) * arrowSize, ey + Math.sin(angle + Math.PI - 0.5) * arrowSize);
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex + Math.cos(angle + Math.PI + 0.5) * arrowSize, ey + Math.sin(angle + Math.PI + 0.5) * arrowSize);
         ctx.stroke();
     }
 

@@ -41,7 +41,8 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 | 🛡️ | Shield | Immunity from black holes and their gravity | 7 seconds |
 | 📏 | Wide Platform | Platform becomes 30% wider | 7 seconds |
 | 🧲 | Magnet | Ball grips platform & resists black hole pull (90%) | 7 seconds |
-| 🔮 | Shrink Ball | Ball shrinks to 50% size | 7 seconds |
+| 🔮 | Shrink Ball | Ball shrinks to 50% size (counters Big Ballz) | Permanent |
+| 🏀 | Big Ballz | Ball grows to 140% size (counters Shrink Ball) | Permanent |
 | ⏸️ | Time Freeze | Black holes stop moving | 7 seconds |
 
 ### Customization (Settings)
@@ -131,6 +132,7 @@ Settings are automatically saved to localStorage and persist between sessions.
     powerUpWidePlatform: true,
     powerUpMagnet: true,
     powerUpShrinkBall: true,
+    powerUpBigBallz: true,
     powerUpTimeFreeze: true
 }
 ```
