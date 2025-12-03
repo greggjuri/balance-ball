@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balance Ball - Tilt Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 230px 80px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 400px 60px, rgba(255,255,255,0.3), transparent);
+            background-size: 500px 200px;
+            animation: twinkle 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        h1 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 3rem;
+            color: #e94560;
+            text-shadow: 
+                0 0 10px rgba(233, 69, 96, 0.8),
+                0 0 20px rgba(233, 69, 96, 0.6),
+                0 0 40px rgba(233, 69, 96, 0.4);
+            margin-bottom: 1rem;
+            letter-spacing: 4px;
+            z-index: 1;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(233, 69, 96, 0.8), 0 0 20px rgba(233, 69, 96, 0.6); }
+            to { text-shadow: 0 0 20px rgba(233, 69, 96, 1), 0 0 40px rgba(233, 69, 96, 0.8), 0 0 60px rgba(233, 69, 96, 0.6); }
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        #gameCanvas {
+            border-radius: 20px;
+            box-shadow: 
+                0 0 0 4px rgba(233, 69, 96, 0.5),
+                0 0 30px rgba(233, 69, 96, 0.3),
+                0 20px 60px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d1b2a 100%);
+        }
+
+        .controls-info {
+            display: flex;
+            justify-content: space-between;
+            width: 800px;
+            margin-top: 1.5rem;
+            z-index: 1;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group h3 {
+            color: #e94560;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .key-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .key {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(145deg, #2a2a4a, #1a1a2e);
+            border: 2px solid #e94560;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 
+                0 4px 0 #0f3460,
+                0 0 15px rgba(233, 69, 96, 0.3);
+            transition: all 0.1s ease;
+        }
+
+        .key.active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 2px 0 #0f3460,
+                0 0 25px rgba(233, 69, 96, 0.6);
+            background: linear-gradient(145deg, #e94560, #c73e54);
+        }
+
+        .key-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            z-index: 1;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            color: #00d9ff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.8rem;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            border: 2px solid #e94560;
+            text-align: center;
+            z-index: 10;
+            display: none;
+        }
+
+        .game-over h2 {
+            color: #e94560;
+            font-family: 'Russo One', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-over p {
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        .restart-btn {
+            background: linear-gradient(145deg, #e94560, #c73e54);
+            border: none;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(233, 69, 96, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <h1>BALANCE BALL</h1>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div class="game-over" id="gameOver">
+            <h2>GAME OVER!</h2>
+            <p>The ball fell off the platform!</p>
+            <p>Your time: <span id="finalTime">0</span> seconds</p>
+            <button class="restart-btn" onclick="restartGame()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <div class="controls-info">
+        <div class="control-group">
+            <h3>Left Edge</h3>
+            <div class="key-row">
+                <div class="key" id="keyA">A</div>
+                <span class="key-label">Raise</span>
+            </div>
+            <div class="key-row">
+                <div class="key" id="keyZ">Z</div>
+                <span class="key-label">Lower</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="timeDisplay">0.0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Best</div>
+                <div class="stat-value" id="bestDisplay">0.0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Angle</div>
+                <div class="stat-value" id="angleDisplay">0°</div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Right Edge</h3>
+            <div class="key-row">
+                <div class="key" id="keyK">K</div>
+                <span class="key-label">Raise</span>
+            </div>
+            <div class="key-row">
+                <div class="key" id="keyM">M</div>
+                <span class="key-label">Lower</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        Use A/Z to control the left edge • Use K/M to control the right edge • Keep the ball balanced!
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameRunning = true;
+        let startTime = Date.now();
+        let bestTime = parseFloat(localStorage.getItem('balanceBest') || '0');
+
+        // Platform properties
+        const platform = {
+            x: 175,
+            y: 250,
+            width: 450,
+            height: 12,
+            leftHeight: 0,
+            rightHeight: 0,
+            maxTilt: 80,
+            tiltSpeed: 2.5
+        };
+
+        // Ball properties
+        const ball = {
+            x: 400,
+            y: 200,
+            radius: 18,
+            vx: 0,
+            vy: 0,
+            ax: 0,
+            ay: 0
+        };
+
+        // Physics constants
+        const gravity = 0.4;
+        const friction = 0.998;
+        const bounceFactor = 0.3;
+        const rollFriction = 0.9995;
+
+        // Input state
+        const keys = {
+            a: false,
+            z: false,
+            k: false,
+            m: false
+        };
+
+        // Trail effect
+        const trail = [];
+        const maxTrailLength = 15;
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) {
+                keys[key] = true;
+                document.getElementById('key' + key.toUpperCase()).classList.add('active');
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) {
+                keys[key] = false;
+                document.getElementById('key' + key.toUpperCase()).classList.remove('active');
+            }
+        });
+
+        function updatePlatform() {
+            // Left edge control
+            if (keys.a) platform.leftHeight = Math.min(platform.leftHeight + platform.tiltSpeed, platform.maxTilt);
+            if (keys.z) platform.leftHeight = Math.max(platform.leftHeight - platform.tiltSpeed, -platform.maxTilt);
+            
+            // Right edge control
+            if (keys.k) platform.rightHeight = Math.min(platform.rightHeight + platform.tiltSpeed, platform.maxTilt);
+            if (keys.m) platform.rightHeight = Math.max(platform.rightHeight - platform.tiltSpeed, -platform.maxTilt);
+
+            // Gradual return to center when no keys pressed
+            if (!keys.a && !keys.z) {
+                platform.leftHeight *= 0.98;
+            }
+            if (!keys.k && !keys.m) {
+                platform.rightHeight *= 0.98;
+            }
+        }
+
+        function getPlatformAngle() {
+            return Math.atan2(platform.rightHeight - platform.leftHeight, platform.width);
+        }
+
+        function getPlatformYAtX(x) {
+            const relativeX = (x - platform.x) / platform.width;
+            return platform.y - platform.leftHeight - (platform.rightHeight - platform.leftHeight) * relativeX;
+        }
+
+        function updateBall() {
+            // Calculate platform angle
+            const angle = getPlatformAngle();
+            
+            // Apply gravity along the slope (negative because ball should roll downhill)
+            ball.ax = -Math.sin(angle) * gravity;
+            ball.ay = gravity;
+
+            // Check if ball is on platform
+            const platformY = getPlatformYAtX(ball.x);
+            const distanceFromPlatform = ball.y + ball.radius - platformY;
+
+            if (ball.x >= platform.x && ball.x <= platform.x + platform.width) {
+                if (distanceFromPlatform >= 0 && ball.vy >= 0) {
+                    // Ball is on or touching platform
+                    ball.y = platformY - ball.radius;
+                    
+                    // Apply rolling physics
+                    ball.vx += ball.ax;
+                    ball.vx *= rollFriction;
+                    
+                    // Bounce effect
+                    if (ball.vy > 1) {
+                        ball.vy = -ball.vy * bounceFactor;
+                    } else {
+                        ball.vy = 0;
+                    }
+                } else {
+                    // Ball is in the air
+                    ball.vy += ball.ay;
+                }
+            } else {
+                // Ball is off the platform - free fall
+                ball.vy += ball.ay;
+            }
+
+            // Apply velocity
+            ball.vx *= friction;
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            // Add to trail
+            trail.push({ x: ball.x, y: ball.y });
+            if (trail.length > maxTrailLength) {
+                trail.shift();
+            }
+
+            // Check if ball fell off
+            if (ball.y > canvas.height + ball.radius || 
+                ball.x < -ball.radius || 
+                ball.x > canvas.width + ball.radius) {
+                gameOver();
+            }
+        }
+
+        function drawBackground() {
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(1, '#0d1b2a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(233, 69, 96, 0.1)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawPlatform() {
+            const leftY = platform.y - platform.leftHeight;
+            const rightY = platform.y - platform.rightHeight;
+
+            // Platform shadow
+            ctx.beginPath();
+            ctx.moveTo(platform.x, leftY + 20);
+            ctx.lineTo(platform.x + platform.width, rightY + 20);
+            ctx.lineTo(platform.x + platform.width, rightY + 25);
+            ctx.lineTo(platform.x, leftY + 25);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fill();
+
+            // Platform glow
+            ctx.shadowColor = '#00d9ff';
+            ctx.shadowBlur = 20;
+
+            // Main platform
+            const gradient = ctx.createLinearGradient(platform.x, leftY, platform.x + platform.width, rightY);
+            gradient.addColorStop(0, '#00d9ff');
+            gradient.addColorStop(0.5, '#0099cc');
+            gradient.addColorStop(1, '#00d9ff');
+
+            ctx.beginPath();
+            ctx.moveTo(platform.x, leftY);
+            ctx.lineTo(platform.x + platform.width, rightY);
+            ctx.lineTo(platform.x + platform.width, rightY + platform.height);
+            ctx.lineTo(platform.x, leftY + platform.height);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            // Platform top highlight
+            ctx.beginPath();
+            ctx.moveTo(platform.x, leftY);
+            ctx.lineTo(platform.x + platform.width, rightY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Edge indicators
+            drawEdgeIndicator(platform.x, leftY, platform.leftHeight);
+            drawEdgeIndicator(platform.x + platform.width, rightY, platform.rightHeight);
+        }
+
+        function drawEdgeIndicator(x, y, height) {
+            // Vertical indicator line
+            ctx.beginPath();
+            ctx.moveTo(x, platform.y);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = height > 0 ? 'rgba(0, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Arrow
+            const arrowSize = 8;
+            ctx.fillStyle = height > 0 ? '#00ff64' : '#ff6464';
+            ctx.beginPath();
+            if (Math.abs(height) > 5) {
+                if (height > 0) {
+                    ctx.moveTo(x, y - arrowSize);
+                    ctx.lineTo(x - arrowSize, y + arrowSize);
+                    ctx.lineTo(x + arrowSize, y + arrowSize);
+                } else {
+                    ctx.moveTo(x, y + arrowSize);
+                    ctx.lineTo(x - arrowSize, y - arrowSize);
+                    ctx.lineTo(x + arrowSize, y - arrowSize);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawTrail() {
+            for (let i = 0; i < trail.length; i++) {
+                const alpha = i / trail.length * 0.4;
+                const size = ball.radius * (i / trail.length) * 0.8;
+                
+                ctx.beginPath();
+                ctx.arc(trail[i].x, trail[i].y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(233, 69, 96, ${alpha})`;
+                ctx.fill();
+            }
+        }
+
+        function drawBall() {
+            // Ball shadow
+            ctx.beginPath();
+            ctx.ellipse(ball.x + 5, ball.y + ball.radius + 5, ball.radius * 0.8, ball.radius * 0.3, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fill();
+
+            // Ball glow
+            ctx.shadowColor = '#e94560';
+            ctx.shadowBlur = 25;
+
+            // Main ball
+            const gradient = ctx.createRadialGradient(
+                ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, 0,
+                ball.x, ball.y, ball.radius
+            );
+            gradient.addColorStop(0, '#ff7b94');
+            gradient.addColorStop(0.5, '#e94560');
+            gradient.addColorStop(1, '#c73e54');
+
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            // Highlight
+            ctx.beginPath();
+            ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fill();
+        }
+
+        function updateUI() {
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            document.getElementById('timeDisplay').textContent = elapsed;
+            document.getElementById('bestDisplay').textContent = bestTime.toFixed(1);
+            
+            const angleDegrees = (getPlatformAngle() * 180 / Math.PI).toFixed(1);
+            document.getElementById('angleDisplay').textContent = angleDegrees + '°';
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+            
+            if (parseFloat(finalTime) > bestTime) {
+                bestTime = parseFloat(finalTime);
+                localStorage.setItem('balanceBest', bestTime.toString());
+            }
+
+            document.getElementById('finalTime').textContent = finalTime;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            ball.x = 400;
+            ball.y = 200;
+            ball.vx = 0;
+            ball.vy = 0;
+            platform.leftHeight = 0;
+            platform.rightHeight = 0;
+            trail.length = 0;
+            startTime = Date.now();
+            gameRunning = true;
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        function gameLoop() {
+            if (gameRunning) {
+                updatePlatform();
+                updateBall();
+            }
+
+            drawBackground();
+            drawTrail();
+            drawPlatform();
+            drawBall();
+            updateUI();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        document.getElementById('bestDisplay').textContent = bestTime.toFixed(1);
+        gameLoop();
+    </script>
+</body>
+</html>
