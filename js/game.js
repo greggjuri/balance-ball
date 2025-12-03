@@ -14,19 +14,25 @@ const defaultSettings = {
     ballColor: 'red',
     platformWidth: 'normal',
     soundEnabled: false,
-    powerUpShield: true
+    powerUpShield: true,
+    powerUpWidePlatform: true
 };
 let settings = loadSettings();
 
 // ==================== POWER-UPS STATE ====================
 const powerUps = [];
 let powerUpSpawnTimer = 0;
-const powerUpSpawnInterval = 300;
+const powerUpSpawnInterval = 450; // Reduced frequency
 
 // Active effects
 let shieldActive = false;
 let shieldEndTime = 0;
 const shieldDuration = 5000;
+
+let widePlatformActive = false;
+let widePlatformEndTime = 0;
+const widePlatformDuration = 6000;
+let basePlatformWidth = 350;
 
 // ==================== PLATFORM ====================
 const platform = {
@@ -150,6 +156,7 @@ function updateSettingsUI() {
     
     document.getElementById('soundToggle').classList.toggle('on', settings.soundEnabled);
     document.getElementById('shieldToggle').classList.toggle('on', settings.powerUpShield);
+    document.getElementById('widePlatformToggle').classList.toggle('on', settings.powerUpWidePlatform);
 }
 
 function selectOption(element) {
@@ -169,24 +176,44 @@ function togglePowerUp(type) {
         case 'shield':
             settings.powerUpShield = !settings.powerUpShield;
             break;
+        case 'widePlatform':
+            settings.powerUpWidePlatform = !settings.powerUpWidePlatform;
+            break;
     }
     updateSettingsUI();
 }
 
 function applySettings() {
-    const baseWidth = 350;
     switch (settings.platformWidth) {
         case 'short':
-            platform.width = baseWidth * 0.9;
+            basePlatformWidth = 350 * 0.9;
             break;
         case 'wide':
-            platform.width = baseWidth * 1.1;
+            basePlatformWidth = 350 * 1.1;
             break;
         default:
-            platform.width = baseWidth;
+            basePlatformWidth = 350;
     }
-    platform.x = (800 - platform.width) / 2;
+    applyPlatformWidth();
+}
+
+function applyPlatformWidth() {
+    const oldWidth = platform.width;
+    const centerX = platform.x + oldWidth / 2;
+    
+    // Apply wide platform power-up if active (30% wider)
+    if (widePlatformActive) {
+        platform.width = basePlatformWidth * 1.3;
+    } else {
+        platform.width = basePlatformWidth;
+    }
+    
+    // Recenter platform
+    platform.x = centerX - platform.width / 2;
+    
+    // Clamp to boundaries
     platform.maxX = 800 - platform.width - platform.minX;
+    platform.x = Math.max(platform.minX, Math.min(platform.x, platform.maxX));
 }
 
 // ==================== EVENT LISTENERS ====================
@@ -409,6 +436,7 @@ function updateSuckingAnimation() {
 function spawnPowerUp() {
     const enabledTypes = [];
     if (settings.powerUpShield) enabledTypes.push('shield');
+    if (settings.powerUpWidePlatform) enabledTypes.push('widePlatform');
     
     if (enabledTypes.length === 0) return;
     
@@ -444,6 +472,12 @@ function updatePowerUps() {
     if (shieldActive && Date.now() > shieldEndTime) {
         shieldActive = false;
     }
+
+    if (widePlatformActive && Date.now() > widePlatformEndTime) {
+        widePlatformActive = false;
+        // Restore normal platform width
+        applyPlatformWidth();
+    }
 }
 
 function checkPowerUpCollision() {
@@ -465,6 +499,12 @@ function activatePowerUp(type) {
         case 'shield':
             shieldActive = true;
             shieldEndTime = Date.now() + shieldDuration;
+            break;
+        case 'widePlatform':
+            widePlatformActive = true;
+            widePlatformEndTime = Date.now() + widePlatformDuration;
+            // Apply 30% wider platform
+            applyPlatformWidth();
             break;
     }
 }
@@ -645,6 +685,60 @@ function drawPowerUps() {
             ctx.shadowBlur = 0;
         }
 
+        if (pu.type === 'widePlatform') {
+            const pulse = Math.sin(Date.now() * 0.005) * 0.15 + 1;
+            
+            // Cyan/teal color like the platform
+            ctx.shadowColor = '#00d9ff';
+            ctx.shadowBlur = 15 * pulse;
+
+            // Outer glow
+            const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+            glowGradient.addColorStop(0, 'rgba(0, 217, 255, 0.4)');
+            glowGradient.addColorStop(1, 'rgba(0, 217, 255, 0)');
+            ctx.beginPath();
+            ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+
+            // Wide platform icon - horizontal bar with arrows
+            const barWidth = pu.radius * 1.6;
+            const barHeight = pu.radius * 0.4;
+            
+            // Main bar
+            ctx.beginPath();
+            ctx.roundRect(-barWidth/2, -barHeight/2, barWidth, barHeight, 3);
+            const barGradient = ctx.createLinearGradient(0, -barHeight/2, 0, barHeight/2);
+            barGradient.addColorStop(0, '#80ecff');
+            barGradient.addColorStop(0.5, '#00d9ff');
+            barGradient.addColorStop(1, '#0099cc');
+            ctx.fillStyle = barGradient;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Left arrow
+            ctx.beginPath();
+            ctx.moveTo(-barWidth/2 - 6, 0);
+            ctx.lineTo(-barWidth/2 - 2, -5);
+            ctx.lineTo(-barWidth/2 - 2, 5);
+            ctx.closePath();
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+
+            // Right arrow
+            ctx.beginPath();
+            ctx.moveTo(barWidth/2 + 6, 0);
+            ctx.lineTo(barWidth/2 + 2, -5);
+            ctx.lineTo(barWidth/2 + 2, 5);
+            ctx.closePath();
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+        }
+
         ctx.restore();
     }
 }
@@ -786,6 +880,15 @@ function updateUI() {
     } else {
         shieldDisplay.parentElement.style.display = 'none';
     }
+
+    const widePlatformDisplay = document.getElementById('widePlatformDisplay');
+    if (widePlatformActive) {
+        const remaining = Math.max(0, (widePlatformEndTime - Date.now()) / 1000).toFixed(1);
+        widePlatformDisplay.textContent = remaining + 's';
+        widePlatformDisplay.parentElement.style.display = 'block';
+    } else {
+        widePlatformDisplay.parentElement.style.display = 'none';
+    }
 }
 
 // ==================== GAME CONTROL ====================
@@ -805,6 +908,9 @@ function gameOver(reason) {
 
 function restartGame() {
     applySettings();
+    widePlatformActive = false;
+    widePlatformEndTime = 0;
+    applyPlatformWidth();
     ball.x = platform.x + platform.width / 2;
     ball.y = 400;
     ball.vx = 0;

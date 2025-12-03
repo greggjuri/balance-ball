@@ -176,6 +176,15 @@ h1 {
     color: #ffd700;
 }
 
+.wide-platform-stat .stat-value {
+    color: #00d9ff;
+    text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+
+.wide-platform-stat .stat-label {
+    color: #00d9ff;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;
