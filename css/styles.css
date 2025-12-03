@@ -203,6 +203,15 @@ h1 {
     color: #9932ff;
 }
 
+.time-freeze-stat .stat-value {
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.time-freeze-stat .stat-label {
+    color: #00ffff;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;

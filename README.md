@@ -38,8 +38,11 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 ### Power-Ups
 | Icon | Name | Effect | Duration |
 |------|------|--------|----------|
-| 🛡️ | Shield | Immunity from black holes and their gravity | 5 seconds |
-| 📏 | Wide Platform | Platform becomes 30% wider | 6 seconds |
+| 🛡️ | Shield | Immunity from black holes and their gravity | 7 seconds |
+| 📏 | Wide Platform | Platform becomes 30% wider | 7 seconds |
+| 🧲 | Magnet | Ball grips platform & resists black hole pull (90%) | 7 seconds |
+| 🔮 | Shrink Ball | Ball shrinks to 50% size | 7 seconds |
+| ⏸️ | Time Freeze | Black holes stop moving | 7 seconds |
 
 ### Customization (Settings)
 - **Ball Color** - White, Red, or Black
@@ -52,6 +55,8 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 - Particle trails on the ball
 - Glowing effects on platform and power-ups
 - Pulsing shield aura when protected
+- Magnetic field effect when magnet is active
+- Frozen cyan effect when time freeze is active
 - Dramatic black hole sucking animation
 - Animated background with twinkling stars
 
@@ -65,7 +70,7 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
    cd balance-ball
    ```
 
-2. Open `index.html` in a web browser, or use a local server:
+2. **Important:** This game uses ES6 modules, so you need to run a local server:
    ```bash
    # Using Python
    python -m http.server 8000
@@ -80,19 +85,26 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 
 ```
 balance-ball/
-├── index.html          # Main HTML file
+├── index.html              # Main HTML file
 ├── css/
-│   └── styles.css      # All styling
+│   └── styles.css          # All styling
 ├── js/
-│   └── game.js         # Game logic
-├── README.md           # This file
-├── PROJECT_STATUS.md   # Development roadmap
-└── .gitignore          # Git ignore rules
+│   ├── main.js             # Entry point & game loop
+│   ├── config.js           # Constants & settings
+│   ├── state.js            # Game state management
+│   ├── entities.js         # Ball, platform, black holes
+│   ├── powerups.js         # Power-up system
+│   ├── renderer.js         # All drawing functions
+│   ├── ui.js               # UI & settings management
+│   └── input.js            # Keyboard handling
+├── README.md               # This file
+├── PROJECT_STATUS.md       # Development roadmap
+└── .gitignore              # Git ignore rules
 ```
 
 ## 🎨 Technical Details
 
-- **Pure vanilla JavaScript** - No frameworks or libraries required
+- **ES6 Modules** - Clean, modular code architecture
 - **HTML5 Canvas** - All game rendering
 - **CSS3** - UI styling with animations
 - **LocalStorage** - Persists best time and settings
@@ -102,6 +114,8 @@ balance-ball/
 - Firefox
 - Safari
 - Edge
+
+**Note:** ES6 modules require running from a web server (not file://)
 
 ## 🔧 Configuration
 
@@ -114,7 +128,10 @@ Settings are automatically saved to localStorage and persist between sessions.
     platformWidth: 'normal',
     soundEnabled: false,
     powerUpShield: true,
-    powerUpWidePlatform: true
+    powerUpWidePlatform: true,
+    powerUpMagnet: true,
+    powerUpShrinkBall: true,
+    powerUpTimeFreeze: true
 }
 ```
 

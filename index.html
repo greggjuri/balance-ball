@@ -102,6 +102,16 @@
                     </div>
                     <div class="toggle-switch on" id="shrinkBallToggle" onclick="togglePowerUp('shrinkBall')"></div>
                 </div>
+                <div class="toggle-option powerup-option" style="margin-top: 0.5rem;">
+                    <div class="powerup-info">
+                        <span class="powerup-icon">⏸️</span>
+                        <div class="powerup-text">
+                            <span class="toggle-label">Time Freeze</span>
+                            <span class="powerup-desc">Black holes stop moving for 7 seconds</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="timeFreezeToggle" onclick="togglePowerUp('timeFreeze')"></div>
+                </div>
             </div>
 
             <button class="settings-close" onclick="closeSettings()">SAVE & CLOSE</button>
@@ -164,6 +174,10 @@
                 <div class="stat-label">🔮 Shrink</div>
                 <div class="stat-value shrink-ball-value" id="shrinkBallDisplay">0.0s</div>
             </div>
+            <div class="stat time-freeze-stat" style="display: none;">
+                <div class="stat-label">⏸️ Freeze</div>
+                <div class="stat-value time-freeze-value" id="timeFreezeDisplay">0.0s</div>
+            </div>
         </div>
 
         <div class="control-group">
@@ -183,6 +197,6 @@
         Use A/Z to tilt the platform • Use N/M to move it left and right • Keep the ball balanced!
     </div>
 
-    <script src="js/game.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
