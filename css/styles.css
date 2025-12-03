@@ -500,6 +500,172 @@ h1 {
 
 .powerup-icon {
     font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Custom power-up icons to match in-game graphics */
+.icon-shield {
+    background: linear-gradient(180deg, #e8f4fc 0%, #4a90d9 40%, #2e5a8b 70%, #1a3a5c 100%);
+    clip-path: polygon(50% 100%, 0% 35%, 0% 0%, 100% 0%, 100% 35%);
+    border-radius: 2px;
+}
+
+.icon-wide-platform {
+    position: relative;
+    width: 28px;
+    height: 10px;
+    background: linear-gradient(180deg, #80ecff 0%, #00d9ff 50%, #0099cc 100%);
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+}
+.icon-wide-platform::before,
+.icon-wide-platform::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: #fff;
+}
+.icon-wide-platform::before { left: -10px; }
+.icon-wide-platform::after { 
+    right: -10px; 
+    border-right-color: transparent;
+    border-left-color: #fff;
+}
+
+.icon-narrow-platform {
+    position: relative;
+    width: 20px;
+    height: 10px;
+    background: linear-gradient(180deg, #ff6666 0%, #ff3333 50%, #cc2828 100%);
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
+}
+.icon-narrow-platform::before,
+.icon-narrow-platform::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: #ffaaaa;
+}
+.icon-narrow-platform::before { left: -12px; }
+.icon-narrow-platform::after { 
+    right: -12px; 
+    border-left-color: transparent;
+    border-right-color: #ffaaaa;
+}
+
+.icon-magnet {
+    width: 24px;
+    height: 20px;
+    border: 5px solid #ff6b35;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    box-shadow: 0 0 8px rgba(255, 107, 53, 0.6);
+}
+.icon-magnet::before,
+.icon-magnet::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    width: 5px;
+    height: 8px;
+}
+.icon-magnet::before { left: -5px; background: #cc0000; }
+.icon-magnet::after { right: -5px; background: #0066cc; }
+
+.icon-shrink-ball {
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle at 30% 30%, #cc88ff, #9932ff, #6600cc);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(153, 50, 255, 0.6);
+}
+
+.icon-big-ballz {
+    width: 22px;
+    height: 22px;
+    background: radial-gradient(circle at 30% 30%, #ffaa44, #ff8c00, #cc6600);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 140, 0, 0.6);
+    position: relative;
+}
+.icon-big-ballz::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #804400;
+}
+.icon-big-ballz::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #804400;
+}
+
+.icon-time-freeze {
+    width: 22px;
+    height: 22px;
+    background: radial-gradient(circle, #66ffff, #00dddd, #008888);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+    position: relative;
+}
+.icon-time-freeze::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 8px;
+    background: #003333;
+    transform: translate(-50%, -90%) rotate(-20deg);
+    transform-origin: bottom center;
+}
+.icon-time-freeze::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 6px;
+    background: #003333;
+    transform: translate(-50%, -85%) rotate(45deg);
+    transform-origin: bottom center;
+}
+
+.icon-ice-mode {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #ccf4ff 30%, #88ddff 60%, #55bbdd 100%);
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(136, 221, 255, 0.6);
+    position: relative;
+}
+.icon-ice-mode::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.8);
+    transform: rotate(-45deg);
 }
 
 .powerup-text {
