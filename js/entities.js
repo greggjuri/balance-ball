@@ -79,8 +79,17 @@ export function updateBall() {
             ball.y = platformY - ball.radius;
             ball.vx += ball.ax;
             
-            // Use higher friction when magnet is active
-            const currentRollFriction = effects.magnet.active ? PHYSICS.MAGNET_ROLL_FRICTION : PHYSICS.ROLL_FRICTION;
+            // Determine roll friction based on active effects
+            let currentRollFriction;
+            if (effects.iceMode.active) {
+                // Ice mode: super slippery (almost no friction)
+                currentRollFriction = 0.9999;
+            } else if (effects.magnet.active) {
+                // Magnet: high friction
+                currentRollFriction = PHYSICS.MAGNET_ROLL_FRICTION;
+            } else {
+                currentRollFriction = PHYSICS.ROLL_FRICTION;
+            }
             ball.vx *= currentRollFriction;
             
             if (ball.vy > 1) {

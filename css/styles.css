@@ -213,6 +213,16 @@ h1 {
     color: #ff3333;
 }
 
+/* Ice Mode (Power-Down) - Icy blue color */
+.ice-mode-stat .stat-value {
+    color: #88ddff;
+    text-shadow: 0 0 10px rgba(136, 221, 255, 0.5);
+}
+
+.ice-mode-stat .stat-label {
+    color: #88ddff;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;

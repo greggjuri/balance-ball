@@ -7,7 +7,16 @@ import { DEFAULT_SETTINGS, PLATFORM, BALL } from './config.js';
 function loadSettings() {
     const saved = localStorage.getItem('balanceSettings');
     if (saved) {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        // Merge: defaults first, then saved settings
+        // This ensures new settings get their default values
+        const merged = { ...DEFAULT_SETTINGS };
+        for (const key in parsed) {
+            if (parsed[key] !== undefined) {
+                merged[key] = parsed[key];
+            }
+        }
+        return merged;
     }
     return { ...DEFAULT_SETTINGS };
 }
@@ -84,7 +93,8 @@ export const state = {
         widePlatform: { active: false, endTime: 0 },
         magnet: { active: false, endTime: 0 },
         timeFreeze: { active: false, endTime: 0 },
-        narrowPlatform: { active: false, endTime: 0 }
+        narrowPlatform: { active: false, endTime: 0 },
+        iceMode: { active: false, endTime: 0 }
     },
 
     // Ball size state: 'shrunk', 'normal', or 'big' (permanent until countered)

@@ -67,7 +67,7 @@
                         <span class="powerup-icon">🛡️</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Shield</span>
-                            <span class="powerup-desc">Immunity from black holes for 7 seconds</span>
+                            <span class="powerup-desc">Immunity from black holes for 12 seconds</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="shieldToggle" onclick="togglePowerUp('shield')"></div>
@@ -77,7 +77,7 @@
                         <span class="powerup-icon">📏</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Wide Platform</span>
-                            <span class="powerup-desc">Platform gets 30% wider for 7 seconds</span>
+                            <span class="powerup-desc">Platform gets 30% wider for 12 seconds</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="widePlatformToggle" onclick="togglePowerUp('widePlatform')"></div>
@@ -87,7 +87,7 @@
                         <span class="powerup-icon">🧲</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Magnet</span>
-                            <span class="powerup-desc">Ball grips platform &amp; resists black holes for 7 sec</span>
+                            <span class="powerup-desc">Ball grips platform &amp; resists black holes for 12 sec</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="magnetToggle" onclick="togglePowerUp('magnet')"></div>
@@ -117,7 +117,7 @@
                         <span class="powerup-icon">⏸️</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Time Freeze</span>
-                            <span class="powerup-desc">Black holes stop moving for 7 seconds</span>
+                            <span class="powerup-desc">Black holes stop moving for 12 seconds</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="timeFreezeToggle" onclick="togglePowerUp('timeFreeze')"></div>
@@ -133,10 +133,20 @@
                         <span class="powerup-icon">📏</span>
                         <div class="powerup-text">
                             <span class="toggle-label powerdown-label">Narrow Platform</span>
-                            <span class="powerup-desc">Platform shrinks 30% for 10 seconds</span>
+                            <span class="powerup-desc">Platform shrinks 30% for 12 seconds</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="narrowPlatformToggle" onclick="togglePowerUp('narrowPlatform')"></div>
+                </div>
+                <div class="toggle-option powerup-option powerdown-option" style="margin-top: 0.5rem;">
+                    <div class="powerup-info">
+                        <span class="powerup-icon">🧊</span>
+                        <div class="powerup-text">
+                            <span class="toggle-label powerdown-label">Ice Mode</span>
+                            <span class="powerup-desc">Platform becomes super slippery for 12 seconds</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="iceModeToggle" onclick="togglePowerUp('iceMode')"></div>
                 </div>
             </div>
 
@@ -203,6 +213,10 @@
             <div class="stat narrow-platform-stat" style="display: none;">
                 <div class="stat-label">📏 Narrow</div>
                 <div class="stat-value narrow-platform-value" id="narrowPlatformDisplay">0.0s</div>
+            </div>
+            <div class="stat ice-mode-stat" style="display: none;">
+                <div class="stat-label">🧊 Ice</div>
+                <div class="stat-value ice-mode-value" id="iceModeDisplay">0.0s</div>
             </div>
         </div>
 

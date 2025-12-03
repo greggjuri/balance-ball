@@ -44,8 +44,7 @@ export const BLACK_HOLE = {
 export const POWERUP = {
     SPAWN_INTERVAL: 450,
     RADIUS: 15,
-    DURATION: 7000,         // Power-ups last 7 seconds
-    POWERDOWN_DURATION: 10000  // Power-downs last 10 seconds
+    DURATION: 12000  // All timed power-ups/downs last 12 seconds
 };
 
 export const SCORE_BALL = {
@@ -88,7 +87,8 @@ export const DEFAULT_SETTINGS = {
     powerUpShrinkBall: true,
     powerUpBigBallz: true,
     powerUpTimeFreeze: true,
-    powerDownNarrowPlatform: true
+    powerDownNarrowPlatform: true,
+    powerDownIceMode: true
 };
 
 export const BALL_COLORS = {
@@ -156,6 +156,13 @@ export const POWERUP_TYPES = {
         icon: '📏',
         color: '#ff3333',
         description: 'Platform 30% narrower',
+        isPowerDown: true
+    },
+    iceMode: {
+        name: 'Ice Mode',
+        icon: '🧊',
+        color: '#88ddff',
+        description: 'Platform super slippery',
         isPowerDown: true
     }
 };

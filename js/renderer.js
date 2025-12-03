@@ -53,7 +53,10 @@ export function drawPlatform() {
     ctx.fill();
 
     // Glow effect based on active power-up/power-down
-    if (effects.narrowPlatform.active) {
+    if (effects.iceMode.active) {
+        ctx.shadowColor = '#88ddff';
+        ctx.shadowBlur = 30;
+    } else if (effects.narrowPlatform.active) {
         ctx.shadowColor = '#ff3333';
         ctx.shadowBlur = 25;
     } else if (effects.magnet.active) {
@@ -69,7 +72,11 @@ export function drawPlatform() {
 
     // Platform gradient
     const gradient = ctx.createLinearGradient(platform.x, leftY, platform.x + platform.width, rightY);
-    if (effects.narrowPlatform.active) {
+    if (effects.iceMode.active) {
+        gradient.addColorStop(0, '#aaeeff');
+        gradient.addColorStop(0.5, '#88ddff');
+        gradient.addColorStop(1, '#aaeeff');
+    } else if (effects.narrowPlatform.active) {
         gradient.addColorStop(0, '#ff3333');
         gradient.addColorStop(0.5, '#cc2828');
         gradient.addColorStop(1, '#ff3333');
@@ -300,6 +307,9 @@ export function drawPowerUps() {
             case 'narrowPlatform':
                 drawNarrowPlatformPowerUp(pu);
                 break;
+            case 'iceMode':
+                drawIceModePowerUp(pu);
+                break;
         }
 
         ctx.restore();
@@ -448,6 +458,74 @@ function drawNarrowPlatformPowerUp(pu) {
     ctx.moveTo(3, -3);
     ctx.lineTo(-3, 3);
     ctx.stroke();
+
+    ctx.shadowBlur = 0;
+}
+
+function drawIceModePowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.006) * 0.15 + 1;
+    
+    ctx.shadowColor = '#88ddff';
+    ctx.shadowBlur = 18 * pulse;
+
+    // Outer glow - icy blue
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, 'rgba(136, 221, 255, 0.5)');
+    glowGradient.addColorStop(1, 'rgba(136, 221, 255, 0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Ice cube shape
+    const cubeSize = pu.radius * 0.9;
+    const cubeGradient = ctx.createLinearGradient(-cubeSize, -cubeSize, cubeSize, cubeSize);
+    cubeGradient.addColorStop(0, '#ffffff');
+    cubeGradient.addColorStop(0.3, '#ccf4ff');
+    cubeGradient.addColorStop(0.6, '#88ddff');
+    cubeGradient.addColorStop(1, '#55bbdd');
+    
+    // Main cube body
+    ctx.beginPath();
+    ctx.roundRect(-cubeSize/2, -cubeSize/2, cubeSize, cubeSize, 3);
+    ctx.fillStyle = cubeGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#aaeeff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Ice crystal highlights
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 1.5;
+    
+    // Diagonal crack lines
+    ctx.beginPath();
+    ctx.moveTo(-cubeSize * 0.3, -cubeSize * 0.3);
+    ctx.lineTo(cubeSize * 0.1, cubeSize * 0.1);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(cubeSize * 0.2, -cubeSize * 0.35);
+    ctx.lineTo(cubeSize * 0.35, -cubeSize * 0.1);
+    ctx.stroke();
+
+    // Snowflake sparkles around
+    ctx.fillStyle = '#ffffff';
+    const sparklePositions = [
+        [-pu.radius * 0.8, -pu.radius * 0.6],
+        [pu.radius * 0.7, -pu.radius * 0.7],
+        [-pu.radius * 0.6, pu.radius * 0.8],
+        [pu.radius * 0.8, pu.radius * 0.5]
+    ];
+    
+    for (const [sx, sy] of sparklePositions) {
+        const sparkle = Math.sin(Date.now() * 0.01 + sx) * 0.5 + 0.5;
+        ctx.globalAlpha = sparkle * 0.8;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
 
     ctx.shadowBlur = 0;
 }

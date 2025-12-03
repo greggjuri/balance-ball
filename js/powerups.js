@@ -21,6 +21,7 @@ export function spawnPowerUp() {
     
     // Power-downs (bad)
     if (settings.powerDownNarrowPlatform) enabledTypes.push('narrowPlatform');
+    if (settings.powerDownIceMode) enabledTypes.push('iceMode');
     
     if (enabledTypes.length === 0) return;
     
@@ -83,6 +84,10 @@ export function updatePowerUps() {
     if (effects.narrowPlatform.active && now > effects.narrowPlatform.endTime) {
         effects.narrowPlatform.active = false;
         applyPlatformWidth();
+    }
+
+    if (effects.iceMode.active && now > effects.iceMode.endTime) {
+        effects.iceMode.active = false;
     }
 }
 
@@ -163,10 +168,16 @@ export function activatePowerUp(type) {
             break;
             
         case 'narrowPlatform':
-            // Narrow Platform: shrinks platform 30% for 10 seconds
+            // Narrow Platform: shrinks platform 30% for 12 seconds
             effects.narrowPlatform.active = true;
-            effects.narrowPlatform.endTime = now + POWERUP.POWERDOWN_DURATION;
+            effects.narrowPlatform.endTime = now + POWERUP.DURATION;
             applyPlatformWidth();
+            break;
+            
+        case 'iceMode':
+            // Ice Mode: super slippery platform for 12 seconds
+            effects.iceMode.active = true;
+            effects.iceMode.endTime = now + POWERUP.DURATION;
             break;
     }
 }
