@@ -67,7 +67,7 @@
                         <span class="powerup-icon">🛡️</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Shield</span>
-                            <span class="powerup-desc">Immunity from black holes for 5 seconds</span>
+                            <span class="powerup-desc">Immunity from black holes for 7 seconds</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="shieldToggle" onclick="togglePowerUp('shield')"></div>
@@ -77,7 +77,7 @@
                         <span class="powerup-icon">📏</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Wide Platform</span>
-                            <span class="powerup-desc">Platform gets 30% wider for 6 seconds</span>
+                            <span class="powerup-desc">Platform gets 30% wider for 7 seconds</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="widePlatformToggle" onclick="togglePowerUp('widePlatform')"></div>
@@ -87,10 +87,20 @@
                         <span class="powerup-icon">🧲</span>
                         <div class="powerup-text">
                             <span class="toggle-label">Magnet</span>
-                            <span class="powerup-desc">Ball sticks to platform better for 6 seconds</span>
+                            <span class="powerup-desc">Ball grips platform &amp; resists black holes for 7 sec</span>
                         </div>
                     </div>
                     <div class="toggle-switch on" id="magnetToggle" onclick="togglePowerUp('magnet')"></div>
+                </div>
+                <div class="toggle-option powerup-option" style="margin-top: 0.5rem;">
+                    <div class="powerup-info">
+                        <span class="powerup-icon">🔮</span>
+                        <div class="powerup-text">
+                            <span class="toggle-label">Shrink Ball</span>
+                            <span class="powerup-desc">Ball shrinks 50% for 7 seconds</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="shrinkBallToggle" onclick="togglePowerUp('shrinkBall')"></div>
                 </div>
             </div>
 
@@ -149,6 +159,10 @@
             <div class="stat magnet-stat" style="display: none;">
                 <div class="stat-label">🧲 Magnet</div>
                 <div class="stat-value magnet-value" id="magnetDisplay">0.0s</div>
+            </div>
+            <div class="stat shrink-ball-stat" style="display: none;">
+                <div class="stat-label">🔮 Shrink</div>
+                <div class="stat-value shrink-ball-value" id="shrinkBallDisplay">0.0s</div>
             </div>
         </div>
 

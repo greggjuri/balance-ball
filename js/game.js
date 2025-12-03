@@ -16,7 +16,8 @@ const defaultSettings = {
     soundEnabled: false,
     powerUpShield: true,
     powerUpWidePlatform: true,
-    powerUpMagnet: true
+    powerUpMagnet: true,
+    powerUpShrinkBall: true
 };
 let settings = loadSettings();
 
@@ -28,16 +29,21 @@ const powerUpSpawnInterval = 450; // Reduced frequency
 // Active effects
 let shieldActive = false;
 let shieldEndTime = 0;
-const shieldDuration = 5000;
+const shieldDuration = 7000;
 
 let widePlatformActive = false;
 let widePlatformEndTime = 0;
-const widePlatformDuration = 6000;
+const widePlatformDuration = 7000;
 let basePlatformWidth = 350;
 
 let magnetActive = false;
 let magnetEndTime = 0;
-const magnetDuration = 6000;
+const magnetDuration = 7000;
+
+let shrinkBallActive = false;
+let shrinkBallEndTime = 0;
+const shrinkBallDuration = 7000;
+const baseBallRadius = 18;
 
 // ==================== PLATFORM ====================
 const platform = {
@@ -164,6 +170,7 @@ function updateSettingsUI() {
     document.getElementById('shieldToggle').classList.toggle('on', settings.powerUpShield);
     document.getElementById('widePlatformToggle').classList.toggle('on', settings.powerUpWidePlatform);
     document.getElementById('magnetToggle').classList.toggle('on', settings.powerUpMagnet);
+    document.getElementById('shrinkBallToggle').classList.toggle('on', settings.powerUpShrinkBall);
 }
 
 function selectOption(element) {
@@ -188,6 +195,9 @@ function togglePowerUp(type) {
             break;
         case 'magnet':
             settings.powerUpMagnet = !settings.powerUpMagnet;
+            break;
+        case 'shrinkBall':
+            settings.powerUpShrinkBall = !settings.powerUpShrinkBall;
             break;
     }
     updateSettingsUI();
@@ -462,6 +472,7 @@ function spawnPowerUp() {
     if (settings.powerUpShield) enabledTypes.push('shield');
     if (settings.powerUpWidePlatform) enabledTypes.push('widePlatform');
     if (settings.powerUpMagnet) enabledTypes.push('magnet');
+    if (settings.powerUpShrinkBall) enabledTypes.push('shrinkBall');
     
     if (enabledTypes.length === 0) return;
     
@@ -507,6 +518,12 @@ function updatePowerUps() {
     if (magnetActive && Date.now() > magnetEndTime) {
         magnetActive = false;
     }
+
+    if (shrinkBallActive && Date.now() > shrinkBallEndTime) {
+        shrinkBallActive = false;
+        // Restore normal ball size
+        ball.radius = baseBallRadius;
+    }
 }
 
 function checkPowerUpCollision() {
@@ -538,6 +555,12 @@ function activatePowerUp(type) {
         case 'magnet':
             magnetActive = true;
             magnetEndTime = Date.now() + magnetDuration;
+            break;
+        case 'shrinkBall':
+            shrinkBallActive = true;
+            shrinkBallEndTime = Date.now() + shrinkBallDuration;
+            // Shrink ball by 50%
+            ball.radius = baseBallRadius * 0.5;
             break;
     }
 }
@@ -850,6 +873,73 @@ function drawPowerUps() {
             ctx.shadowBlur = 0;
         }
 
+        if (pu.type === 'shrinkBall') {
+            const pulse = Math.sin(Date.now() * 0.005) * 0.15 + 1;
+            
+            // Purple/violet color for shrink
+            ctx.shadowColor = '#9932ff';
+            ctx.shadowBlur = 15 * pulse;
+
+            // Outer glow
+            const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+            glowGradient.addColorStop(0, 'rgba(153, 50, 255, 0.4)');
+            glowGradient.addColorStop(1, 'rgba(153, 50, 255, 0)');
+            ctx.beginPath();
+            ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+
+            // Draw a ball with inward arrows to indicate shrinking
+            // Main ball
+            const ballRadius = pu.radius * 0.6;
+            const ballGradient = ctx.createRadialGradient(
+                -ballRadius * 0.3, -ballRadius * 0.3, 0,
+                0, 0, ballRadius
+            );
+            ballGradient.addColorStop(0, '#cc88ff');
+            ballGradient.addColorStop(0.5, '#9932ff');
+            ballGradient.addColorStop(1, '#6600cc');
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = ballGradient;
+            ctx.fill();
+            ctx.strokeStyle = '#ddaaff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Draw inward arrows
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            const arrowDist = pu.radius * 1.1;
+            const arrowSize = 4;
+            
+            // Four arrows pointing inward
+            for (let i = 0; i < 4; i++) {
+                const angle = (i * Math.PI / 2) + Math.PI / 4;
+                const ax = Math.cos(angle) * arrowDist;
+                const ay = Math.sin(angle) * arrowDist;
+                const tx = Math.cos(angle) * (ballRadius + 2);
+                const ty = Math.sin(angle) * (ballRadius + 2);
+                
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                ctx.lineTo(tx, ty);
+                ctx.stroke();
+                
+                // Arrowhead
+                const headAngle = angle + Math.PI;
+                ctx.beginPath();
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(tx + Math.cos(headAngle - 0.5) * arrowSize, ty + Math.sin(headAngle - 0.5) * arrowSize);
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(tx + Math.cos(headAngle + 0.5) * arrowSize, ty + Math.sin(headAngle + 0.5) * arrowSize);
+                ctx.stroke();
+            }
+
+            ctx.shadowBlur = 0;
+        }
+
         ctx.restore();
     }
 }
@@ -1050,6 +1140,15 @@ function updateUI() {
     } else {
         magnetDisplay.parentElement.style.display = 'none';
     }
+
+    const shrinkBallDisplay = document.getElementById('shrinkBallDisplay');
+    if (shrinkBallActive) {
+        const remaining = Math.max(0, (shrinkBallEndTime - Date.now()) / 1000).toFixed(1);
+        shrinkBallDisplay.textContent = remaining + 's';
+        shrinkBallDisplay.parentElement.style.display = 'block';
+    } else {
+        shrinkBallDisplay.parentElement.style.display = 'none';
+    }
 }
 
 // ==================== GAME CONTROL ====================
@@ -1073,12 +1172,14 @@ function restartGame() {
     widePlatformEndTime = 0;
     magnetActive = false;
     magnetEndTime = 0;
+    shrinkBallActive = false;
+    shrinkBallEndTime = 0;
     applyPlatformWidth();
     ball.x = platform.x + platform.width / 2;
     ball.y = 400;
     ball.vx = 0;
     ball.vy = 0;
-    ball.radius = 18;
+    ball.radius = baseBallRadius;
     ball.suckRotation = 0;
     platform.tilt = 0;
     trail.length = 0;
