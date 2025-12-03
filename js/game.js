@@ -15,7 +15,8 @@ const defaultSettings = {
     platformWidth: 'normal',
     soundEnabled: false,
     powerUpShield: true,
-    powerUpWidePlatform: true
+    powerUpWidePlatform: true,
+    powerUpMagnet: true
 };
 let settings = loadSettings();
 
@@ -33,6 +34,10 @@ let widePlatformActive = false;
 let widePlatformEndTime = 0;
 const widePlatformDuration = 6000;
 let basePlatformWidth = 350;
+
+let magnetActive = false;
+let magnetEndTime = 0;
+const magnetDuration = 6000;
 
 // ==================== PLATFORM ====================
 const platform = {
@@ -65,6 +70,7 @@ const gravity = 0.4;
 const friction = 0.998;
 const bounceFactor = 0.3;
 const rollFriction = 0.9995;
+const magnetRollFriction = 0.990; // Much higher friction when magnet is active
 
 // ==================== BLACK HOLES ====================
 const scrollSpeed = 1.5;
@@ -157,6 +163,7 @@ function updateSettingsUI() {
     document.getElementById('soundToggle').classList.toggle('on', settings.soundEnabled);
     document.getElementById('shieldToggle').classList.toggle('on', settings.powerUpShield);
     document.getElementById('widePlatformToggle').classList.toggle('on', settings.powerUpWidePlatform);
+    document.getElementById('magnetToggle').classList.toggle('on', settings.powerUpMagnet);
 }
 
 function selectOption(element) {
@@ -178,6 +185,9 @@ function togglePowerUp(type) {
             break;
         case 'widePlatform':
             settings.powerUpWidePlatform = !settings.powerUpWidePlatform;
+            break;
+        case 'magnet':
+            settings.powerUpMagnet = !settings.powerUpMagnet;
             break;
     }
     updateSettingsUI();
@@ -268,8 +278,11 @@ function getPlatformYAtX(x) {
 function updateBall() {
     const angle = getPlatformAngle();
     
-    ball.ax = -Math.sin(angle) * gravity;
-    ball.ay = gravity;
+    // Reduce gravity effect when magnet is active (ball sticks better)
+    const effectiveGravity = magnetActive ? gravity * 0.7 : gravity;
+    
+    ball.ax = -Math.sin(angle) * effectiveGravity;
+    ball.ay = effectiveGravity;
 
     const platformY = getPlatformYAtX(ball.x);
     const distanceFromPlatform = ball.y + ball.radius - platformY;
@@ -278,10 +291,15 @@ function updateBall() {
         if (distanceFromPlatform >= 0 && ball.vy >= 0) {
             ball.y = platformY - ball.radius;
             ball.vx += ball.ax;
-            ball.vx *= rollFriction;
+            
+            // Use higher friction when magnet is active
+            const currentRollFriction = magnetActive ? magnetRollFriction : rollFriction;
+            ball.vx *= currentRollFriction;
             
             if (ball.vy > 1) {
-                ball.vy = -ball.vy * bounceFactor;
+                // Reduce bounce when magnet is active (90% less)
+                const currentBounceFactor = magnetActive ? bounceFactor * 0.1 : bounceFactor;
+                ball.vy = -ball.vy * currentBounceFactor;
             } else {
                 ball.vy = 0;
             }
@@ -362,7 +380,13 @@ function applyBlackHoleGravity() {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < blackHoleGravityRadius && distance > 0) {
-            const strength = blackHoleGravityStrength * (1 - distance / blackHoleGravityRadius) * (1 - distance / blackHoleGravityRadius);
+            let strength = blackHoleGravityStrength * (1 - distance / blackHoleGravityRadius) * (1 - distance / blackHoleGravityRadius);
+            
+            // Reduce black hole gravity by 90% when magnet is active
+            if (magnetActive) {
+                strength *= 0.1;
+            }
+            
             const nx = dx / distance;
             const ny = dy / distance;
             
@@ -437,6 +461,7 @@ function spawnPowerUp() {
     const enabledTypes = [];
     if (settings.powerUpShield) enabledTypes.push('shield');
     if (settings.powerUpWidePlatform) enabledTypes.push('widePlatform');
+    if (settings.powerUpMagnet) enabledTypes.push('magnet');
     
     if (enabledTypes.length === 0) return;
     
@@ -478,6 +503,10 @@ function updatePowerUps() {
         // Restore normal platform width
         applyPlatformWidth();
     }
+
+    if (magnetActive && Date.now() > magnetEndTime) {
+        magnetActive = false;
+    }
 }
 
 function checkPowerUpCollision() {
@@ -505,6 +534,10 @@ function activatePowerUp(type) {
             widePlatformEndTime = Date.now() + widePlatformDuration;
             // Apply 30% wider platform
             applyPlatformWidth();
+            break;
+        case 'magnet':
+            magnetActive = true;
+            magnetEndTime = Date.now() + magnetDuration;
             break;
     }
 }
@@ -546,13 +579,25 @@ function drawPlatform() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fill();
 
-    ctx.shadowColor = '#00d9ff';
-    ctx.shadowBlur = 20;
+    // Magnet effect on platform
+    if (magnetActive) {
+        ctx.shadowColor = '#ff6b35';
+        ctx.shadowBlur = 25;
+    } else {
+        ctx.shadowColor = '#00d9ff';
+        ctx.shadowBlur = 20;
+    }
 
     const gradient = ctx.createLinearGradient(platform.x, leftY, platform.x + platform.width, rightY);
-    gradient.addColorStop(0, '#00d9ff');
-    gradient.addColorStop(0.5, '#0099cc');
-    gradient.addColorStop(1, '#00d9ff');
+    if (magnetActive) {
+        gradient.addColorStop(0, '#ff6b35');
+        gradient.addColorStop(0.5, '#cc5528');
+        gradient.addColorStop(1, '#ff6b35');
+    } else {
+        gradient.addColorStop(0, '#00d9ff');
+        gradient.addColorStop(0.5, '#0099cc');
+        gradient.addColorStop(1, '#00d9ff');
+    }
 
     ctx.beginPath();
     ctx.moveTo(platform.x, leftY);
@@ -739,6 +784,72 @@ function drawPowerUps() {
             ctx.shadowBlur = 0;
         }
 
+        if (pu.type === 'magnet') {
+            const pulse = Math.sin(Date.now() * 0.005) * 0.15 + 1;
+            
+            // Orange/red magnet color
+            ctx.shadowColor = '#ff6b35';
+            ctx.shadowBlur = 15 * pulse;
+
+            // Outer glow
+            const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+            glowGradient.addColorStop(0, 'rgba(255, 107, 53, 0.4)');
+            glowGradient.addColorStop(1, 'rgba(255, 107, 53, 0)');
+            ctx.beginPath();
+            ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+
+            // Horseshoe magnet shape
+            const magnetRadius = pu.radius * 0.8;
+            const magnetThickness = pu.radius * 0.35;
+            
+            // Draw the horseshoe (U-shape)
+            ctx.beginPath();
+            // Outer arc
+            ctx.arc(0, 0, magnetRadius, Math.PI, 0, false);
+            // Right leg
+            ctx.lineTo(magnetRadius, pu.radius * 0.6);
+            // Right inner corner
+            ctx.lineTo(magnetRadius - magnetThickness, pu.radius * 0.6);
+            // Inner arc
+            ctx.arc(0, 0, magnetRadius - magnetThickness, 0, Math.PI, true);
+            // Left inner corner
+            ctx.lineTo(-magnetRadius + magnetThickness, pu.radius * 0.6);
+            // Left leg
+            ctx.lineTo(-magnetRadius, pu.radius * 0.6);
+            ctx.closePath();
+
+            // Orange/red gradient
+            const magnetGradient = ctx.createLinearGradient(-magnetRadius, 0, magnetRadius, 0);
+            magnetGradient.addColorStop(0, '#ff4444');
+            magnetGradient.addColorStop(0.3, '#ff6b35');
+            magnetGradient.addColorStop(0.5, '#ffaa00');
+            magnetGradient.addColorStop(0.7, '#ff6b35');
+            magnetGradient.addColorStop(1, '#ff4444');
+            ctx.fillStyle = magnetGradient;
+            ctx.fill();
+
+            ctx.strokeStyle = '#ffccaa';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Add pole indicators (red and blue tips)
+            // Left pole (red)
+            ctx.beginPath();
+            ctx.rect(-magnetRadius, pu.radius * 0.3, magnetThickness, pu.radius * 0.3);
+            ctx.fillStyle = '#cc0000';
+            ctx.fill();
+            
+            // Right pole (blue)
+            ctx.beginPath();
+            ctx.rect(magnetRadius - magnetThickness, pu.radius * 0.3, magnetThickness, pu.radius * 0.3);
+            ctx.fillStyle = '#0066cc';
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+        }
+
         ctx.restore();
     }
 }
@@ -809,6 +920,45 @@ function drawShieldEffect() {
     ctx.restore();
 }
 
+function drawMagnetEffect() {
+    if (!magnetActive) return;
+
+    const remaining = magnetEndTime - Date.now();
+    const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
+    const pulse = Math.sin(Date.now() * pulseSpeed) * 0.15 + 0.85;
+
+    ctx.save();
+
+    // Draw magnetic field lines around ball
+    const numLines = 6;
+    for (let i = 0; i < numLines; i++) {
+        const angle = (i / numLines) * Math.PI * 2 + Date.now() * 0.002;
+        const innerRadius = ball.radius * 1.2;
+        const outerRadius = ball.radius * 1.6 * pulse;
+        
+        const x1 = ball.x + Math.cos(angle) * innerRadius;
+        const y1 = ball.y + Math.sin(angle) * innerRadius;
+        const x2 = ball.x + Math.cos(angle) * outerRadius;
+        const y2 = ball.y + Math.sin(angle) * outerRadius;
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = `rgba(255, 107, 53, ${0.4 * pulse})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // Outer glow ring
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(255, 107, 53, ${0.3 * pulse})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
+}
+
 function drawBall() {
     const colorConfig = ballColors[settings.ballColor];
     
@@ -821,10 +971,12 @@ function drawBall() {
 
     if (shieldActive && !beingSucked) {
         ctx.shadowColor = '#ffd700';
+    } else if (magnetActive && !beingSucked) {
+        ctx.shadowColor = '#ff6b35';
     } else {
         ctx.shadowColor = beingSucked ? colorConfig.suckGlow : colorConfig.glow;
     }
-    ctx.shadowBlur = beingSucked ? 35 : (shieldActive ? 30 : 25);
+    ctx.shadowBlur = beingSucked ? 35 : (shieldActive || magnetActive ? 30 : 25);
 
     ctx.save();
     
@@ -889,6 +1041,15 @@ function updateUI() {
     } else {
         widePlatformDisplay.parentElement.style.display = 'none';
     }
+
+    const magnetDisplay = document.getElementById('magnetDisplay');
+    if (magnetActive) {
+        const remaining = Math.max(0, (magnetEndTime - Date.now()) / 1000).toFixed(1);
+        magnetDisplay.textContent = remaining + 's';
+        magnetDisplay.parentElement.style.display = 'block';
+    } else {
+        magnetDisplay.parentElement.style.display = 'none';
+    }
 }
 
 // ==================== GAME CONTROL ====================
@@ -910,6 +1071,8 @@ function restartGame() {
     applySettings();
     widePlatformActive = false;
     widePlatformEndTime = 0;
+    magnetActive = false;
+    magnetEndTime = 0;
     applyPlatformWidth();
     ball.x = platform.x + platform.width / 2;
     ball.y = 400;
@@ -966,6 +1129,7 @@ function gameLoop() {
     drawTrail();
     drawPlatform();
     drawShieldEffect();
+    drawMagnetEffect();
     drawBall();
     updateUI();
 

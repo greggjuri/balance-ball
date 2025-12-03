@@ -82,6 +82,16 @@
                     </div>
                     <div class="toggle-switch on" id="widePlatformToggle" onclick="togglePowerUp('widePlatform')"></div>
                 </div>
+                <div class="toggle-option powerup-option" style="margin-top: 0.5rem;">
+                    <div class="powerup-info">
+                        <span class="powerup-icon">🧲</span>
+                        <div class="powerup-text">
+                            <span class="toggle-label">Magnet</span>
+                            <span class="powerup-desc">Ball sticks to platform better for 6 seconds</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="magnetToggle" onclick="togglePowerUp('magnet')"></div>
+                </div>
             </div>
 
             <button class="settings-close" onclick="closeSettings()">SAVE & CLOSE</button>
@@ -135,6 +145,10 @@
             <div class="stat wide-platform-stat" style="display: none;">
                 <div class="stat-label">📏 Wide</div>
                 <div class="stat-value wide-platform-value" id="widePlatformDisplay">0.0s</div>
+            </div>
+            <div class="stat magnet-stat" style="display: none;">
+                <div class="stat-label">🧲 Magnet</div>
+                <div class="stat-value magnet-value" id="magnetDisplay">0.0s</div>
             </div>
         </div>
 

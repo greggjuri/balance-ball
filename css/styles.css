@@ -185,6 +185,15 @@ h1 {
     color: #00d9ff;
 }
 
+.magnet-stat .stat-value {
+    color: #ff6b35;
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+.magnet-stat .stat-label {
+    color: #ff6b35;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;
