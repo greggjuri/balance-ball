@@ -1,0 +1,467 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    font-family: 'Orbitron', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Animated background particles */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 230px 80px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 400px 60px, rgba(255,255,255,0.3), transparent);
+    background-size: 500px 200px;
+    animation: twinkle 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+h1 {
+    font-family: 'Russo One', sans-serif;
+    font-size: 3rem;
+    color: #e94560;
+    text-shadow: 
+        0 0 10px rgba(233, 69, 96, 0.8),
+        0 0 20px rgba(233, 69, 96, 0.6),
+        0 0 40px rgba(233, 69, 96, 0.4);
+    margin-bottom: 1rem;
+    letter-spacing: 4px;
+    z-index: 1;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px rgba(233, 69, 96, 0.8), 0 0 20px rgba(233, 69, 96, 0.6); }
+    to { text-shadow: 0 0 20px rgba(233, 69, 96, 1), 0 0 40px rgba(233, 69, 96, 0.8), 0 0 60px rgba(233, 69, 96, 0.6); }
+}
+
+.game-container {
+    position: relative;
+    z-index: 1;
+}
+
+#gameCanvas {
+    border-radius: 20px;
+    box-shadow: 
+        0 0 0 4px rgba(233, 69, 96, 0.5),
+        0 0 30px rgba(233, 69, 96, 0.3),
+        0 20px 60px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(180deg, #1a1a2e 0%, #0d1b2a 100%);
+}
+
+/* Controls Info */
+.controls-info {
+    display: flex;
+    justify-content: space-between;
+    width: 800px;
+    margin-top: 1.5rem;
+    z-index: 1;
+}
+
+.control-group {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-group h3 {
+    color: #e94560;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.key-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.key {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(145deg, #2a2a4a, #1a1a2e);
+    border: 2px solid #e94560;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 
+        0 4px 0 #0f3460,
+        0 0 15px rgba(233, 69, 96, 0.3);
+    transition: all 0.1s ease;
+}
+
+.key.active {
+    transform: translateY(2px);
+    box-shadow: 
+        0 2px 0 #0f3460,
+        0 0 25px rgba(233, 69, 96, 0.6);
+    background: linear-gradient(145deg, #e94560, #c73e54);
+}
+
+.key-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+}
+
+/* Stats Display */
+.stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    z-index: 1;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    color: #00d9ff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+
+.shield-stat .stat-value {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.shield-stat .stat-label {
+    color: #ffd700;
+}
+
+/* Instructions */
+.instructions {
+    position: absolute;
+    bottom: 20px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+    text-align: center;
+    z-index: 1;
+}
+
+/* Game Over Modal */
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 2rem 3rem;
+    border-radius: 20px;
+    border: 2px solid #e94560;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+.game-over h2 {
+    color: #e94560;
+    font-family: 'Russo One', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.game-over p {
+    color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.restart-btn {
+    background: linear-gradient(145deg, #e94560, #c73e54);
+    border: none;
+    color: #fff;
+    padding: 0.75rem 2rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+}
+
+.restart-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(233, 69, 96, 0.6);
+}
+
+.enter-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+}
+
+/* Settings Button */
+.settings-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.settings-btn:hover {
+    background: rgba(233, 69, 96, 0.3);
+    border-color: #e94560;
+    transform: rotate(45deg);
+}
+
+/* Settings Overlay */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.settings-overlay.active {
+    display: flex;
+}
+
+.settings-panel {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    border: 2px solid #e94560;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 450px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(233, 69, 96, 0.3);
+}
+
+.settings-panel h2 {
+    font-family: 'Russo One', sans-serif;
+    color: #e94560;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.setting-group {
+    margin-bottom: 1.5rem;
+}
+
+.setting-group h3 {
+    color: #00d9ff;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.75rem;
+}
+
+.setting-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.setting-option {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.setting-option:hover {
+    border-color: rgba(233, 69, 96, 0.5);
+    background: rgba(233, 69, 96, 0.1);
+}
+
+.setting-option.selected {
+    border-color: #e94560;
+    background: rgba(233, 69, 96, 0.2);
+    color: #fff;
+}
+
+.setting-option .color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin: 0 auto 0.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.setting-option .color-preview.white {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #cccccc);
+}
+
+.setting-option .color-preview.red {
+    background: radial-gradient(circle at 30% 30%, #ff7b94, #e94560);
+}
+
+.setting-option .color-preview.black {
+    background: radial-gradient(circle at 30% 30%, #444444, #111111);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Toggle Switch */
+.toggle-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.toggle-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.toggle-switch {
+    width: 50px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-switch.on {
+    background: rgba(233, 69, 96, 0.5);
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: all 0.2s ease;
+}
+
+.toggle-switch.on::after {
+    left: 27px;
+    background: #e94560;
+}
+
+/* Settings Close Button */
+.settings-close {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    background: linear-gradient(145deg, #e94560, #c73e54);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settings-close:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+}
+
+.settings-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 1.5rem 0;
+}
+
+/* Power-up Options */
+.powerup-option {
+    flex-direction: row;
+    align-items: center;
+}
+
+.powerup-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.powerup-icon {
+    font-size: 1.5rem;
+}
+
+.powerup-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.powerup-desc {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+}
