@@ -49,7 +49,7 @@ export const POWERUP = {
 };
 
 export const SCORE_BALL = {
-    SPAWN_INTERVAL: 90,  // Spawn frequently
+    SPAWN_INTERVAL: 150,  // Spawn frequently
     TYPES: {
         // 1 point: large (black hole size), slow
         large: { 
