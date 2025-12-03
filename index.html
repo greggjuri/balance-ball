@@ -250,14 +250,14 @@
 
     <div class="controls-info">
         <div class="control-group">
-            <h3>Left Edge</h3>
+            <h3>Tilt</h3>
             <div class="key-row">
                 <div class="key" id="keyA">A</div>
-                <span class="key-label">Raise</span>
+                <span class="key-label">Tilt Left</span>
             </div>
             <div class="key-row">
                 <div class="key" id="keyZ">Z</div>
-                <span class="key-label">Lower</span>
+                <span class="key-label">Tilt Right</span>
             </div>
         </div>
 
@@ -277,20 +277,20 @@
         </div>
 
         <div class="control-group">
-            <h3>Right Edge</h3>
+            <h3>Move</h3>
             <div class="key-row">
-                <div class="key" id="keyK">K</div>
-                <span class="key-label">Raise</span>
+                <div class="key" id="keyN">N</div>
+                <span class="key-label">Move Left</span>
             </div>
             <div class="key-row">
                 <div class="key" id="keyM">M</div>
-                <span class="key-label">Lower</span>
+                <span class="key-label">Move Right</span>
             </div>
         </div>
     </div>
 
     <div class="instructions">
-        Use A/Z to control the left edge • Use K/M to control the right edge • Keep the ball balanced!
+        Use A/Z to tilt the platform • Use N/M to move it left and right • Keep the ball balanced!
     </div>
 
     <script>
@@ -328,10 +328,12 @@
             y: 450,
             width: 350,
             height: 12,
-            leftHeight: 0,
-            rightHeight: 0,
+            tilt: 0,           // Single tilt angle (positive = right side down)
             maxTilt: 80,
-            tiltSpeed: 2.5
+            tiltSpeed: 2.5,
+            moveSpeed: 4,
+            minX: 50,          // Left boundary
+            maxX: 400          // Right boundary (800 - 350 - 50)
         };
 
         // Ball properties
@@ -355,7 +357,7 @@
         const keys = {
             a: false,
             z: false,
-            k: false,
+            n: false,
             m: false
         };
 
@@ -599,30 +601,28 @@
         });
 
         function updatePlatform() {
-            // Left edge control
-            if (keys.a) platform.leftHeight = Math.min(platform.leftHeight + platform.tiltSpeed, platform.maxTilt);
-            if (keys.z) platform.leftHeight = Math.max(platform.leftHeight - platform.tiltSpeed, -platform.maxTilt);
+            // Tilt control: A = tilt left, Z = tilt right
+            if (keys.a) platform.tilt = Math.max(platform.tilt - platform.tiltSpeed, -platform.maxTilt);
+            if (keys.z) platform.tilt = Math.min(platform.tilt + platform.tiltSpeed, platform.maxTilt);
             
-            // Right edge control
-            if (keys.k) platform.rightHeight = Math.min(platform.rightHeight + platform.tiltSpeed, platform.maxTilt);
-            if (keys.m) platform.rightHeight = Math.max(platform.rightHeight - platform.tiltSpeed, -platform.maxTilt);
+            // Movement control: N = move left, M = move right
+            if (keys.n) platform.x = Math.max(platform.x - platform.moveSpeed, platform.minX);
+            if (keys.m) platform.x = Math.min(platform.x + platform.moveSpeed, platform.maxX);
 
-            // Gradual return to center when no keys pressed
+            // Gradual return to level when no tilt keys pressed
             if (!keys.a && !keys.z) {
-                platform.leftHeight *= 0.98;
-            }
-            if (!keys.k && !keys.m) {
-                platform.rightHeight *= 0.98;
+                platform.tilt *= 0.96;
             }
         }
 
         function getPlatformAngle() {
-            return Math.atan2(platform.rightHeight - platform.leftHeight, platform.width);
+            return Math.atan2(platform.tilt * 2, platform.width);
         }
 
         function getPlatformYAtX(x) {
-            const relativeX = (x - platform.x) / platform.width;
-            return platform.y - platform.leftHeight - (platform.rightHeight - platform.leftHeight) * relativeX;
+            const centerX = platform.x + platform.width / 2;
+            const relativeX = (x - centerX) / (platform.width / 2);
+            return platform.y - (platform.tilt * relativeX);
         }
 
         function updateBall() {
@@ -707,8 +707,8 @@
         }
 
         function drawPlatform() {
-            const leftY = platform.y - platform.leftHeight;
-            const rightY = platform.y - platform.rightHeight;
+            const leftY = platform.y + platform.tilt;
+            const rightY = platform.y - platform.tilt;
 
             // Platform shadow
             ctx.beginPath();
@@ -851,8 +851,8 @@
             ball.vy = 0;
             ball.radius = 18;
             ball.suckRotation = 0;
-            platform.leftHeight = 0;
-            platform.rightHeight = 0;
+            platform.tilt = 0;
+            platform.x = 225;
             trail.length = 0;
             blackHoles.length = 0;
             spawnTimer = 0;
