@@ -223,6 +223,16 @@ h1 {
     color: #88ddff;
 }
 
+/* Blinking Eye (Power-Down) - Magenta/Pink color */
+.blinking-eye-stat .stat-value {
+    color: #ff66ff;
+    text-shadow: 0 0 10px rgba(255, 102, 255, 0.5);
+}
+
+.blinking-eye-stat .stat-label {
+    color: #ff66ff;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;
@@ -666,6 +676,38 @@ h1 {
     height: 1px;
     background: rgba(255, 255, 255, 0.8);
     transform: rotate(-45deg);
+}
+
+.icon-blinking-eye {
+    width: 26px;
+    height: 16px;
+    background: radial-gradient(ellipse at center, #ffffff 0%, #ffeeee 60%, #ffcccc 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 102, 255, 0.6);
+    position: relative;
+    border: 2px solid #cc66cc;
+}
+.icon-blinking-eye::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #ff00ff 0%, #cc00cc 50%, #990099 100%);
+    border-radius: 50%;
+}
+.icon-blinking-eye::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    background: #000000;
+    border-radius: 50%;
 }
 
 .powerup-text {

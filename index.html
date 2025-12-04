@@ -148,6 +148,16 @@
                     </div>
                     <div class="toggle-switch on" id="iceModeToggle" onclick="togglePowerUp('iceMode')"></div>
                 </div>
+                <div class="toggle-option powerup-option powerdown-option" style="margin-top: 0.5rem;">
+                    <div class="powerup-info">
+                        <div class="powerup-icon icon-blinking-eye"></div>
+                        <div class="powerup-text">
+                            <span class="toggle-label powerdown-label">Blinking Eye</span>
+                            <span class="powerup-desc">Ball blinks invisible every other second for 12 sec</span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch on" id="blinkingEyeToggle" onclick="togglePowerUp('blinkingEye')"></div>
+                </div>
             </div>
 
             <button class="settings-close" onclick="closeSettings()">SAVE & CLOSE</button>
@@ -217,6 +227,10 @@
             <div class="stat ice-mode-stat" style="display: none;">
                 <div class="stat-label">🧊 Ice</div>
                 <div class="stat-value ice-mode-value" id="iceModeDisplay">0.0s</div>
+            </div>
+            <div class="stat blinking-eye-stat" style="display: none;">
+                <div class="stat-label">👁️ Blink</div>
+                <div class="stat-value blinking-eye-value" id="blinkingEyeDisplay">0.0s</div>
             </div>
         </div>
 

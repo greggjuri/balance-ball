@@ -44,6 +44,7 @@ export function updateSettingsUI() {
         const timeFreezeToggle = document.getElementById('timeFreezeToggle');
         const narrowPlatformToggle = document.getElementById('narrowPlatformToggle');
         const iceModeToggle = document.getElementById('iceModeToggle');
+        const blinkingEyeToggle = document.getElementById('blinkingEyeToggle');
         
         if (soundToggle) soundToggle.classList.toggle('on', settings.soundEnabled);
         if (shieldToggle) shieldToggle.classList.toggle('on', settings.powerUpShield);
@@ -54,6 +55,7 @@ export function updateSettingsUI() {
         if (timeFreezeToggle) timeFreezeToggle.classList.toggle('on', settings.powerUpTimeFreeze);
         if (narrowPlatformToggle) narrowPlatformToggle.classList.toggle('on', settings.powerDownNarrowPlatform);
         if (iceModeToggle) iceModeToggle.classList.toggle('on', settings.powerDownIceMode);
+        if (blinkingEyeToggle) blinkingEyeToggle.classList.toggle('on', settings.powerDownBlinkingEye);
     } catch (error) {
         console.error('updateSettingsUI error:', error);
     }
@@ -98,6 +100,9 @@ export function togglePowerUp(type) {
             break;
         case 'iceMode':
             settings.powerDownIceMode = !settings.powerDownIceMode;
+            break;
+        case 'blinkingEye':
+            settings.powerDownBlinkingEye = !settings.powerDownBlinkingEye;
             break;
     }
     updateSettingsUI();
@@ -144,6 +149,7 @@ export function updateUI() {
     updateEffectDisplay('timeFreeze', 'timeFreezeDisplay', effects.timeFreeze);
     updateEffectDisplay('narrowPlatform', 'narrowPlatformDisplay', effects.narrowPlatform);
     updateEffectDisplay('iceMode', 'iceModeDisplay', effects.iceMode);
+    updateEffectDisplay('blinkingEye', 'blinkingEyeDisplay', effects.blinkingEye);
 }
 
 function updateEffectDisplay(name, elementId, effect) {

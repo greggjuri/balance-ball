@@ -3,6 +3,7 @@
 
 import { CANVAS, BLACK_HOLE, BALL_COLORS, BALL } from './config.js';
 import { state } from './state.js';
+import { isBallVisible } from './powerups.js';
 
 let ctx;
 
@@ -310,6 +311,9 @@ export function drawPowerUps() {
             case 'iceMode':
                 drawIceModePowerUp(pu);
                 break;
+            case 'blinkingEye':
+                drawBlinkingEyePowerUp(pu);
+                break;
         }
 
         ctx.restore();
@@ -526,6 +530,79 @@ function drawIceModePowerUp(pu) {
         ctx.fill();
     }
     ctx.globalAlpha = 1;
+
+    ctx.shadowBlur = 0;
+}
+
+function drawBlinkingEyePowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.008) * 0.2 + 1;
+    const blink = Math.sin(Date.now() * 0.006) * 0.5 + 0.5;  // Blinking animation
+    
+    ctx.shadowColor = '#ff66ff';
+    ctx.shadowBlur = 18 * pulse;
+
+    // Outer glow - magenta/pink
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, 'rgba(255, 102, 255, 0.5)');
+    glowGradient.addColorStop(1, 'rgba(255, 102, 255, 0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Eye white (ellipse shape)
+    const eyeWidth = pu.radius * 1.4;
+    const eyeHeight = pu.radius * 0.9 * (0.3 + blink * 0.7);  // Blinks closed periodically
+    
+    ctx.beginPath();
+    ctx.ellipse(0, 0, eyeWidth / 2, eyeHeight / 2, 0, 0, Math.PI * 2);
+    const eyeGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, eyeWidth / 2);
+    eyeGradient.addColorStop(0, '#ffffff');
+    eyeGradient.addColorStop(0.8, '#ffeeee');
+    eyeGradient.addColorStop(1, '#ffcccc');
+    ctx.fillStyle = eyeGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#cc66cc';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Iris (only visible when eye is open enough)
+    if (blink > 0.3) {
+        const irisRadius = pu.radius * 0.35 * Math.min(1, blink * 1.5);
+        ctx.beginPath();
+        ctx.arc(0, 0, irisRadius, 0, Math.PI * 2);
+        const irisGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, irisRadius);
+        irisGradient.addColorStop(0, '#ff00ff');
+        irisGradient.addColorStop(0.5, '#cc00cc');
+        irisGradient.addColorStop(1, '#990099');
+        ctx.fillStyle = irisGradient;
+        ctx.fill();
+
+        // Pupil
+        if (blink > 0.5) {
+            const pupilRadius = pu.radius * 0.15;
+            ctx.beginPath();
+            ctx.arc(0, 0, pupilRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#000000';
+            ctx.fill();
+
+            // Eye glint
+            ctx.beginPath();
+            ctx.arc(-pupilRadius * 0.5, -pupilRadius * 0.5, pupilRadius * 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fill();
+        }
+    }
+
+    // Eyelid lines when blinking
+    if (blink < 0.5) {
+        ctx.strokeStyle = '#cc66cc';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-eyeWidth / 2, 0);
+        ctx.lineTo(eyeWidth / 2, 0);
+        ctx.stroke();
+    }
 
     ctx.shadowBlur = 0;
 }
@@ -809,7 +886,13 @@ function drawTimeFreezePowerUp(pu) {
 // ==================== BALL & EFFECTS ====================
 
 export function drawTrail() {
-    const { trail, ball, settings } = state;
+    const { trail, ball, settings, effects } = state;
+    
+    // Don't draw trail when ball is invisible (blinking eye effect)
+    if (effects.blinkingEye.active && !isBallVisible()) {
+        return;
+    }
+    
     const colorConfig = BALL_COLORS[settings.ballColor];
     const baseColor = colorConfig.gradient[1];
     let r = 233, g = 69, b = 96;
@@ -852,6 +935,9 @@ export function drawSuckParticles() {
 export function drawShieldEffect() {
     const { ball, effects } = state;
     if (!effects.shield.active) return;
+    
+    // Don't draw shield effect if ball is invisible
+    if (effects.blinkingEye.active && !isBallVisible()) return;
 
     const remaining = effects.shield.endTime - Date.now();
     const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
@@ -882,6 +968,9 @@ export function drawShieldEffect() {
 export function drawMagnetEffect() {
     const { ball, effects } = state;
     if (!effects.magnet.active) return;
+    
+    // Don't draw magnet effect if ball is invisible
+    if (effects.blinkingEye.active && !isBallVisible()) return;
 
     const remaining = effects.magnet.endTime - Date.now();
     const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
@@ -950,8 +1039,51 @@ export function drawTimeFreezeEffect() {
     ctx.restore();
 }
 
+export function drawBlinkingEyeEffect() {
+    const { effects } = state;
+    if (!effects.blinkingEye.active) return;
+
+    const remaining = effects.blinkingEye.endTime - Date.now();
+    const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
+    const pulse = Math.sin(Date.now() * pulseSpeed) * 0.1 + 0.9;
+
+    // Only show screen effect when ball is invisible
+    if (!isBallVisible()) {
+        ctx.save();
+        
+        // Subtle magenta screen edge glow when ball is invisible
+        const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS.HEIGHT);
+        gradient.addColorStop(0, `rgba(255, 102, 255, ${0.1 * pulse})`);
+        gradient.addColorStop(0.1, 'rgba(255, 102, 255, 0)');
+        gradient.addColorStop(0.9, 'rgba(255, 102, 255, 0)');
+        gradient.addColorStop(1, `rgba(255, 102, 255, ${0.1 * pulse})`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
+
+        ctx.restore();
+    }
+}
+
 export function drawBall() {
     const { ball, effects, settings, beingSucked } = state;
+    
+    // Check if ball should be invisible (blinking eye effect)
+    if (effects.blinkingEye.active && !isBallVisible() && !beingSucked) {
+        // Draw a faint ghost outline so player knows roughly where ball is
+        ctx.save();
+        ctx.globalAlpha = 0.15;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ff66ff';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+        return;  // Don't draw full ball
+    }
+    
     const colorConfig = BALL_COLORS[settings.ballColor];
     
     // Shadow
@@ -1011,6 +1143,7 @@ export function drawBall() {
 export function render() {
     drawBackground();
     drawTimeFreezeEffect();
+    drawBlinkingEyeEffect();
     drawBlackHoles();
     drawScoreBalls();
     drawPowerUps();

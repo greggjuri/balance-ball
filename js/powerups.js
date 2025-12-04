@@ -29,6 +29,7 @@ export function spawnPowerUp() {
     // Power-downs (bad)
     if (settings.powerDownNarrowPlatform) enabledTypes.push('narrowPlatform');
     if (settings.powerDownIceMode) enabledTypes.push('iceMode');
+    if (settings.powerDownBlinkingEye) enabledTypes.push('blinkingEye');
     
     if (enabledTypes.length === 0) return;
     
@@ -96,6 +97,10 @@ export function updatePowerUps() {
 
     if (effects.iceMode.active && now > effects.iceMode.endTime) {
         effects.iceMode.active = false;
+    }
+
+    if (effects.blinkingEye.active && now > effects.blinkingEye.endTime) {
+        effects.blinkingEye.active = false;
     }
 }
 
@@ -187,6 +192,12 @@ export function activatePowerUp(type) {
             effects.iceMode.active = true;
             effects.iceMode.endTime = now + POWERUP.DURATION;
             break;
+            
+        case 'blinkingEye':
+            // Blinking Eye: ball is invisible every other second for 12 seconds
+            effects.blinkingEye.active = true;
+            effects.blinkingEye.endTime = now + POWERUP.DURATION;
+            break;
     }
 }
 
@@ -202,6 +213,15 @@ export function isMagnetActive() {
 
 export function isTimeFreezeActive() {
     return state.effects.timeFreeze.active;
+}
+
+// Check if ball should be visible (for blinking eye effect)
+export function isBallVisible() {
+    if (!state.effects.blinkingEye.active) return true;
+    // Blink every second: visible for 1 sec, invisible for 1 sec
+    const elapsed = Date.now() - (state.effects.blinkingEye.endTime - POWERUP.DURATION);
+    const secondsPassed = Math.floor(elapsed / 1000);
+    return secondsPassed % 2 === 0;  // Visible on even seconds, invisible on odd
 }
 
 export function getEffectTimeRemaining(effectName) {

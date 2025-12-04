@@ -91,7 +91,8 @@ export const DEFAULT_SETTINGS = {
     powerUpBigBallz: true,
     powerUpTimeFreeze: true,
     powerDownNarrowPlatform: true,
-    powerDownIceMode: true
+    powerDownIceMode: true,
+    powerDownBlinkingEye: true
 };
 
 export const BALL_COLORS = {
@@ -166,6 +167,13 @@ export const POWERUP_TYPES = {
         icon: '🧊',
         color: '#88ddff',
         description: 'Platform super slippery',
+        isPowerDown: true
+    },
+    blinkingEye: {
+        name: 'Blinking Eye',
+        icon: '👁️',
+        color: '#ff66ff',
+        description: 'Ball blinks invisible',
         isPowerDown: true
     }
 };
