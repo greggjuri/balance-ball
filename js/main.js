@@ -42,7 +42,7 @@ function gameLoop() {
     try {
         frameCount++;
         
-        if (state.gameRunning) {
+        if (state.gameRunning && !state.gamePaused) {
             if (state.beingSucked) {
                 updateBlackHoles();
                 updateScoreBalls();

@@ -41,6 +41,11 @@ function handleKeyUp(e) {
         restartCallback();
     }
     
+    // Toggle pause on P key
+    if (key === 'p' && state.gameRunning && !state.beingSucked) {
+        state.gamePaused = !state.gamePaused;
+    }
+    
     // Close settings on Escape
     if (e.key === 'Escape') {
         closeSettings();

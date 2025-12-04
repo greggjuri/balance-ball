@@ -1430,4 +1430,32 @@ export function render() {
     drawShieldEffect();
     drawMagnetEffect();
     drawBall();
+    
+    // Draw pause overlay
+    if (state.gamePaused) {
+        drawPauseOverlay();
+    }
+}
+
+function drawPauseOverlay() {
+    // Semi-transparent overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
+    
+    // Pause text
+    ctx.save();
+    ctx.fillStyle = '#e94560';
+    ctx.font = 'bold 64px Russo One, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#e94560';
+    ctx.shadowBlur = 20;
+    ctx.fillText('PAUSED', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 - 30);
+    
+    // Instructions
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = '20px Orbitron, sans-serif';
+    ctx.shadowBlur = 0;
+    ctx.fillText('Press P to resume', CANVAS.WIDTH / 2, CANVAS.HEIGHT / 2 + 30);
+    ctx.restore();
 }

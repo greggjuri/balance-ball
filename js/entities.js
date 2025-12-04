@@ -108,7 +108,8 @@ function updateSingleBall(ball, trail, trailLength) {
             // Determine roll friction based on active effects
             let currentRollFriction;
             if (effects.iceMode.active) {
-                currentRollFriction = 0.9999;
+                // Ice mode: extremely slippery (virtually no friction)
+                currentRollFriction = 0.99999;
             } else if (effects.magnet.active) {
                 currentRollFriction = PHYSICS.MAGNET_ROLL_FRICTION;
             } else {

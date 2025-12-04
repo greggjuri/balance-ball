@@ -30,6 +30,7 @@ export function saveSettings() {
 export const state = {
     // Game status
     gameRunning: true,
+    gamePaused: false,
     startTime: Date.now(),
     score: 0,
     bestScore: parseFloat(localStorage.getItem('balanceBestScore') || '0'),
@@ -111,13 +112,15 @@ export const state = {
         a: false,
         z: false,
         n: false,
-        m: false
+        m: false,
+        p: false
     }
 };
 
 // Reset game state
 export function resetState() {
     state.gameRunning = true;
+    state.gamePaused = false;
     state.startTime = Date.now();
     state.score = 0;
     state.gameOverReason = '';
