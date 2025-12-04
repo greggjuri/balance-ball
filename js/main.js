@@ -64,9 +64,13 @@ function gameLoop() {
                 updatePowerUps();
                 checkPowerUpCollision();
                 
-                const caughtByHole = checkBlackHoleCollision();
-                if (caughtByHole) {
-                    startSuckingAnimation(caughtByHole);
+                const collision = checkBlackHoleCollision();
+                if (collision) {
+                    const result = startSuckingAnimation(collision);
+                    // Only start game over animation if no backup ball
+                    if (result !== 'gameOver') {
+                        // Ball was lost but game continues
+                    }
                 }
             }
         }
@@ -77,7 +81,8 @@ function gameLoop() {
         // Debug: log every 60 frames (roughly every second)
         if (frameCount % 60 === 0) {
             console.log('Frame', frameCount, '- Ball:', state.ball.x.toFixed(1), state.ball.y.toFixed(1), 
-                       '- Vel:', state.ball.vx.toFixed(2), state.ball.vy.toFixed(2));
+                       '- Vel:', state.ball.vx.toFixed(2), state.ball.vy.toFixed(2),
+                       '- ExtraBall:', state.extraBall ? 'yes' : 'no');
         }
     } catch (error) {
         console.error('Game loop error:', error);

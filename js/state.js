@@ -67,6 +67,10 @@ export const state = {
     },
     trail: [],
 
+    // Extra ball (second ball, null when not active)
+    extraBall: null,
+    extraBallTrail: [],
+
     // Black holes
     blackHoles: [],
     spawnTimer: 0,
@@ -132,10 +136,14 @@ export function resetState() {
 
     // Clear arrays
     state.trail.length = 0;
+    state.extraBallTrail.length = 0;
     state.blackHoles.length = 0;
     state.scoreBalls.length = 0;
     state.powerUps.length = 0;
     state.suckParticles.length = 0;
+
+    // Reset extra ball
+    state.extraBall = null;
 
     // Reset timers
     state.spawnTimer = 0;

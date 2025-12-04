@@ -90,6 +90,8 @@ export const DEFAULT_SETTINGS = {
     powerUpShrinkBall: true,
     powerUpBigBallz: true,
     powerUpTimeFreeze: true,
+    powerUpExtraBall: true,
+    powerUpRandom: true,
     powerDownNarrowPlatform: true,
     powerDownIceMode: true,
     powerDownBlinkingEye: true,
@@ -154,6 +156,18 @@ export const POWERUP_TYPES = {
         icon: '⏸️',
         color: '#00ffff',
         description: 'Black holes freeze'
+    },
+    extraBall: {
+        name: 'Extra Ball',
+        icon: '⚾',
+        color: '#ffdd00',
+        description: 'Adds a second ball'
+    },
+    random: {
+        name: 'Random',
+        icon: '🎲',
+        color: '#ff00ff',
+        description: 'Random power-up or down'
     },
     // Power-downs (negative effects)
     narrowPlatform: {

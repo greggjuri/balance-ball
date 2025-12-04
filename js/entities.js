@@ -86,8 +86,9 @@ export function applyPlatformWidth() {
 
 // ==================== BALL ====================
 
-export function updateBall() {
-    const { ball, platform, effects, trail } = state;
+// Update a single ball's physics, returns 'fell' if ball fell off screen
+function updateSingleBall(ball, trail, trailLength) {
+    const { platform, effects } = state;
     const angle = getPlatformAngle();
     
     // Reduce gravity effect when magnet is active
@@ -107,10 +108,8 @@ export function updateBall() {
             // Determine roll friction based on active effects
             let currentRollFriction;
             if (effects.iceMode.active) {
-                // Ice mode: super slippery (almost no friction)
                 currentRollFriction = 0.9999;
             } else if (effects.magnet.active) {
-                // Magnet: high friction
                 currentRollFriction = PHYSICS.MAGNET_ROLL_FRICTION;
             } else {
                 currentRollFriction = PHYSICS.ROLL_FRICTION;
@@ -118,7 +117,6 @@ export function updateBall() {
             ball.vx *= currentRollFriction;
             
             if (ball.vy > 1) {
-                // Reduce bounce when magnet is active (90% less)
                 const currentBounceFactor = effects.magnet.active ? PHYSICS.BOUNCE_FACTOR * 0.1 : PHYSICS.BOUNCE_FACTOR;
                 ball.vy = -ball.vy * currentBounceFactor;
             } else {
@@ -137,7 +135,7 @@ export function updateBall() {
 
     // Update trail
     trail.push({ x: ball.x, y: ball.y });
-    if (trail.length > BALL.TRAIL_LENGTH) {
+    if (trail.length > trailLength) {
         trail.shift();
     }
 
@@ -145,9 +143,50 @@ export function updateBall() {
     if (ball.y > CANVAS.HEIGHT + ball.radius || 
         ball.x < -ball.radius || 
         ball.x > CANVAS.WIDTH + ball.radius) {
-        state.finalScore = state.score;
         return 'fell';
     }
+    return null;
+}
+
+export function updateBall() {
+    const { ball, trail, extraBall, extraBallTrail } = state;
+    
+    // Update primary ball
+    const primaryResult = updateSingleBall(ball, trail, BALL.TRAIL_LENGTH);
+    
+    // Update extra ball if exists
+    let extraResult = null;
+    if (extraBall) {
+        extraResult = updateSingleBall(extraBall, extraBallTrail, BALL.TRAIL_LENGTH);
+    }
+    
+    // Handle ball loss
+    if (primaryResult === 'fell') {
+        if (extraBall) {
+            // Promote extra ball to primary
+            state.ball.x = extraBall.x;
+            state.ball.y = extraBall.y;
+            state.ball.vx = extraBall.vx;
+            state.ball.vy = extraBall.vy;
+            state.ball.radius = extraBall.radius;
+            state.trail.length = 0;
+            state.trail.push(...extraBallTrail);
+            state.extraBall = null;
+            state.extraBallTrail.length = 0;
+            return null; // Game continues
+        } else {
+            state.finalScore = state.score;
+            return 'fell'; // Game over
+        }
+    }
+    
+    if (extraResult === 'fell') {
+        // Just remove extra ball, game continues
+        state.extraBall = null;
+        state.extraBallTrail.length = 0;
+        return null;
+    }
+    
     return null;
 }
 
@@ -207,44 +246,63 @@ export function updateBlackHoles() {
 export function checkBlackHoleCollision() {
     if (state.effects.shield.active) return null;
     
-    const { ball, blackHoles } = state;
+    const { ball, extraBall, blackHoles } = state;
     
     for (const hole of blackHoles) {
-        const dx = ball.x - hole.x;
-        const dy = ball.y - hole.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        // Check primary ball
+        let dx = ball.x - hole.x;
+        let dy = ball.y - hole.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < hole.radius * 0.5) {
-            return hole;
+            return { hole, ballType: 'primary' };
+        }
+        
+        // Check extra ball
+        if (extraBall) {
+            dx = extraBall.x - hole.x;
+            dy = extraBall.y - hole.y;
+            distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < hole.radius * 0.5) {
+                return { hole, ballType: 'extra' };
+            }
         }
     }
     return null;
 }
 
 export function applyBlackHoleGravity() {
-    const { ball, blackHoles, effects } = state;
+    const { ball, extraBall, blackHoles, effects } = state;
     
     if (effects.shield.active) return;
     
-    for (const hole of blackHoles) {
-        const dx = hole.x - ball.x;
-        const dy = hole.y - ball.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < BLACK_HOLE.GRAVITY_RADIUS && distance > 0) {
-            let strength = BLACK_HOLE.GRAVITY_STRENGTH * (1 - distance / BLACK_HOLE.GRAVITY_RADIUS) * (1 - distance / BLACK_HOLE.GRAVITY_RADIUS);
+    // Apply gravity to a single ball
+    function applyGravityToBall(targetBall) {
+        for (const hole of blackHoles) {
+            const dx = hole.x - targetBall.x;
+            const dy = hole.y - targetBall.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
             
-            // Reduce black hole gravity by 90% when magnet is active
-            if (effects.magnet.active) {
-                strength *= 0.1;
+            if (distance < BLACK_HOLE.GRAVITY_RADIUS && distance > 0) {
+                let strength = BLACK_HOLE.GRAVITY_STRENGTH * (1 - distance / BLACK_HOLE.GRAVITY_RADIUS) * (1 - distance / BLACK_HOLE.GRAVITY_RADIUS);
+                
+                if (effects.magnet.active) {
+                    strength *= 0.1;
+                }
+                
+                const nx = dx / distance;
+                const ny = dy / distance;
+                
+                targetBall.vx += nx * strength;
+                targetBall.vy += ny * strength;
             }
-            
-            const nx = dx / distance;
-            const ny = dy / distance;
-            
-            ball.vx += nx * strength;
-            ball.vy += ny * strength;
         }
+    }
+    
+    applyGravityToBall(ball);
+    if (extraBall) {
+        applyGravityToBall(extraBall);
     }
 }
 
@@ -295,32 +353,96 @@ export function updateScoreBalls() {
 }
 
 export function checkScoreBallCollision() {
-    const { ball, scoreBalls } = state;
+    const { ball, extraBall, scoreBalls } = state;
     
     for (let i = scoreBalls.length - 1; i >= 0; i--) {
         const sb = scoreBalls[i];
-        const dx = ball.x - sb.x;
-        const dy = ball.y - sb.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Check primary ball
+        let dx = ball.x - sb.x;
+        let dy = ball.y - sb.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < ball.radius + sb.radius) {
             state.score += sb.points;
             scoreBalls.splice(i, 1);
+            continue;
+        }
+        
+        // Check extra ball
+        if (extraBall) {
+            dx = extraBall.x - sb.x;
+            dy = extraBall.y - sb.y;
+            distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < extraBall.radius + sb.radius) {
+                state.score += sb.points;
+                scoreBalls.splice(i, 1);
+            }
         }
     }
 }
 
+// ==================== EXTRA BALL ====================
+
+export function spawnExtraBall() {
+    if (state.extraBall) return; // Already have extra ball
+    
+    const { platform, ball } = state;
+    
+    // Spawn extra ball on platform, offset from primary ball
+    const offsetX = ball.x < platform.x + platform.width / 2 ? 50 : -50;
+    const spawnX = Math.max(platform.x + 20, Math.min(ball.x + offsetX, platform.x + platform.width - 20));
+    
+    state.extraBall = {
+        x: spawnX,
+        y: BALL.INITIAL_Y,
+        radius: ball.radius,  // Same size as primary ball
+        vx: 0,
+        vy: 0,
+        ax: 0,
+        ay: 0,
+        suckRotation: 0
+    };
+    state.extraBallTrail = [];
+}
+
 // ==================== SUCKING ANIMATION ====================
 
-export function startSuckingAnimation(hole) {
-    const { ball } = state;
+export function startSuckingAnimation(collision) {
+    const { hole, ballType } = collision;
+    const targetBall = ballType === 'extra' ? state.extraBall : state.ball;
+    
+    // If extra ball gets sucked and we have primary, just remove extra
+    if (ballType === 'extra') {
+        state.extraBall = null;
+        state.extraBallTrail.length = 0;
+        return 'extraLost';
+    }
+    
+    // If primary ball gets sucked and we have extra, promote extra to primary
+    if (ballType === 'primary' && state.extraBall) {
+        state.ball.x = state.extraBall.x;
+        state.ball.y = state.extraBall.y;
+        state.ball.vx = state.extraBall.vx;
+        state.ball.vy = state.extraBall.vy;
+        state.ball.radius = state.extraBall.radius;
+        state.trail.length = 0;
+        state.trail.push(...state.extraBallTrail);
+        state.extraBall = null;
+        state.extraBallTrail.length = 0;
+        return 'primaryLostButContinue';
+    }
+    
+    // No backup ball - start game over animation
     state.beingSucked = true;
     state.suckingHole = hole;
     state.suckProgress = 0;
-    state.suckStartPos = { x: ball.x, y: ball.y };
-    state.suckStartRadius = ball.radius;
+    state.suckStartPos = { x: targetBall.x, y: targetBall.y };
+    state.suckStartRadius = targetBall.radius;
     state.suckParticles = [];
     state.finalScore = state.score;
+    return 'gameOver';
 }
 
 export function updateSuckingAnimation() {

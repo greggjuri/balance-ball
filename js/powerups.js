@@ -3,7 +3,7 @@
 
 import { CANVAS, POWERUP, BALL, PHYSICS } from './config.js';
 import { state } from './state.js';
-import { applyPlatformWidth } from './entities.js';
+import { applyPlatformWidth, spawnExtraBall } from './entities.js';
 
 // ==================== UTILITY ====================
 
@@ -25,6 +25,8 @@ export function spawnPowerUp() {
     if (settings.powerUpShrinkBall) enabledTypes.push('shrinkBall');
     if (settings.powerUpBigBallz) enabledTypes.push('bigBallz');
     if (settings.powerUpTimeFreeze) enabledTypes.push('timeFreeze');
+    if (settings.powerUpExtraBall && !state.extraBall) enabledTypes.push('extraBall'); // Only if no extra ball
+    if (settings.powerUpRandom) enabledTypes.push('random');
     
     // Power-downs (bad)
     if (settings.powerDownNarrowPlatform) enabledTypes.push('narrowPlatform');
@@ -112,17 +114,32 @@ export function updatePowerUps() {
 // ==================== COLLISION ====================
 
 export function checkPowerUpCollision() {
-    const { ball, powerUps } = state;
+    const { ball, extraBall, powerUps } = state;
     
     for (let i = powerUps.length - 1; i >= 0; i--) {
         const pu = powerUps[i];
-        const dx = ball.x - pu.x;
-        const dy = ball.y - pu.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Check primary ball
+        let dx = ball.x - pu.x;
+        let dy = ball.y - pu.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < ball.radius + pu.radius) {
             activatePowerUp(pu.type);
             powerUps.splice(i, 1);
+            continue;
+        }
+        
+        // Check extra ball
+        if (extraBall) {
+            dx = extraBall.x - pu.x;
+            dy = extraBall.y - pu.y;
+            distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < extraBall.radius + pu.radius) {
+                activatePowerUp(pu.type);
+                powerUps.splice(i, 1);
+            }
         }
     }
 }
@@ -185,6 +202,16 @@ export function activatePowerUp(type) {
             effects.timeFreeze.endTime = now + POWERUP.DURATION;
             break;
             
+        case 'extraBall':
+            // Spawn a second ball on the platform
+            spawnExtraBall();
+            break;
+            
+        case 'random':
+            // Randomly activate another power-up or power-down
+            activateRandomPowerUp();
+            break;
+            
         case 'narrowPlatform':
             // Narrow Platform: shrinks platform 30% for 12 seconds
             effects.narrowPlatform.active = true;
@@ -210,6 +237,31 @@ export function activatePowerUp(type) {
             effects.earthquake.endTime = now + POWERUP.DURATION;
             break;
     }
+}
+
+// ==================== RANDOM POWER-UP ====================
+
+function activateRandomPowerUp() {
+    const { settings } = state;
+    const possibleTypes = [];
+    
+    // Collect all enabled power-ups and power-downs (except random and extraBall if already have one)
+    if (settings.powerUpShield) possibleTypes.push('shield');
+    if (settings.powerUpWidePlatform) possibleTypes.push('widePlatform');
+    if (settings.powerUpMagnet) possibleTypes.push('magnet');
+    if (settings.powerUpShrinkBall) possibleTypes.push('shrinkBall');
+    if (settings.powerUpBigBallz) possibleTypes.push('bigBallz');
+    if (settings.powerUpTimeFreeze) possibleTypes.push('timeFreeze');
+    if (settings.powerUpExtraBall && !state.extraBall) possibleTypes.push('extraBall');
+    if (settings.powerDownNarrowPlatform) possibleTypes.push('narrowPlatform');
+    if (settings.powerDownIceMode) possibleTypes.push('iceMode');
+    if (settings.powerDownBlinkingEye) possibleTypes.push('blinkingEye');
+    if (settings.powerDownEarthquake) possibleTypes.push('earthquake');
+    
+    if (possibleTypes.length === 0) return;
+    
+    const randomType = possibleTypes[Math.floor(Math.random() * possibleTypes.length)];
+    activatePowerUp(randomType);
 }
 
 // ==================== EFFECT GETTERS ====================

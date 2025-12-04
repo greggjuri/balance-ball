@@ -305,6 +305,12 @@ export function drawPowerUps() {
             case 'timeFreeze':
                 drawTimeFreezePowerUp(pu);
                 break;
+            case 'extraBall':
+                drawExtraBallPowerUp(pu);
+                break;
+            case 'random':
+                drawRandomPowerUp(pu);
+                break;
             case 'narrowPlatform':
                 drawNarrowPlatformPowerUp(pu);
                 break;
@@ -966,15 +972,115 @@ function drawTimeFreezePowerUp(pu) {
     ctx.lineCap = 'butt';
 }
 
+function drawExtraBallPowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.005) * 0.15 + 1;
+    
+    ctx.shadowColor = '#ffdd00';
+    ctx.shadowBlur = 15 * pulse;
+
+    // Outer glow - golden yellow
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, 'rgba(255, 221, 0, 0.4)');
+    glowGradient.addColorStop(1, 'rgba(255, 221, 0, 0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Two overlapping balls to represent "extra"
+    const ballRadius = pu.radius * 0.55;
+    
+    // Back ball (slightly offset)
+    const backGradient = ctx.createRadialGradient(-ballRadius * 0.3 + 4, -ballRadius * 0.3 - 2, 0, 4, -2, ballRadius);
+    backGradient.addColorStop(0, '#ffee88');
+    backGradient.addColorStop(0.5, '#ffdd00');
+    backGradient.addColorStop(1, '#cc9900');
+    
+    ctx.beginPath();
+    ctx.arc(4, -2, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = backGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#ffaa00';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // Front ball
+    const frontGradient = ctx.createRadialGradient(-ballRadius * 0.3 - 3, -ballRadius * 0.3 + 2, 0, -3, 2, ballRadius);
+    frontGradient.addColorStop(0, '#ffffff');
+    frontGradient.addColorStop(0.3, '#ffee88');
+    frontGradient.addColorStop(0.6, '#ffdd00');
+    frontGradient.addColorStop(1, '#cc9900');
+    
+    ctx.beginPath();
+    ctx.arc(-3, 2, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = frontGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#ffcc00';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Plus sign between/on balls
+    ctx.fillStyle = '#996600';
+    ctx.fillRect(-1.5, -5, 3, 10);
+    ctx.fillRect(-5, -1.5, 10, 3);
+
+    ctx.shadowBlur = 0;
+}
+
+function drawRandomPowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.008) * 0.2 + 1;
+    const colorShift = (Date.now() * 0.003) % (Math.PI * 2);
+    
+    // Cycling rainbow color
+    const r = Math.sin(colorShift) * 127 + 128;
+    const g = Math.sin(colorShift + 2.094) * 127 + 128;
+    const b = Math.sin(colorShift + 4.188) * 127 + 128;
+    const currentColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+    
+    ctx.shadowColor = currentColor;
+    ctx.shadowBlur = 18 * pulse;
+
+    // Outer glow - rainbow cycling
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0.5)`);
+    glowGradient.addColorStop(1, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0)`);
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Dice cube base
+    const cubeSize = pu.radius * 0.85;
+    const cubeGradient = ctx.createLinearGradient(-cubeSize, -cubeSize, cubeSize, cubeSize);
+    cubeGradient.addColorStop(0, '#ffffff');
+    cubeGradient.addColorStop(0.5, '#eeeeee');
+    cubeGradient.addColorStop(1, '#cccccc');
+    
+    ctx.beginPath();
+    ctx.roundRect(-cubeSize/2, -cubeSize/2, cubeSize, cubeSize, 4);
+    ctx.fillStyle = cubeGradient;
+    ctx.fill();
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Question mark
+    ctx.fillStyle = currentColor;
+    ctx.font = `bold ${pu.radius * 1.1}px Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('?', 0, 1);
+
+    ctx.shadowBlur = 0;
+}
+
 // ==================== BALL & EFFECTS ====================
 
 export function drawTrail() {
-    const { trail, ball, settings, effects } = state;
+    const { trail, ball, extraBall, extraBallTrail, settings, effects } = state;
     
     // Don't draw trail when ball is invisible (blinking eye effect)
-    if (effects.blinkingEye.active && !isBallVisible()) {
-        return;
-    }
+    const isVisible = !effects.blinkingEye.active || isBallVisible();
     
     const colorConfig = BALL_COLORS[settings.ballColor];
     const baseColor = colorConfig.gradient[1];
@@ -986,14 +1092,31 @@ export function drawTrail() {
         b = parseInt(baseColor.slice(5, 7), 16);
     }
     
-    for (let i = 0; i < trail.length; i++) {
-        const alpha = i / trail.length * 0.4;
-        const size = ball.radius * (i / trail.length) * 0.8;
-        
-        ctx.beginPath();
-        ctx.arc(trail[i].x, trail[i].y, size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        ctx.fill();
+    // Draw primary ball trail
+    if (isVisible) {
+        for (let i = 0; i < trail.length; i++) {
+            const alpha = i / trail.length * 0.4;
+            const size = ball.radius * (i / trail.length) * 0.8;
+            
+            ctx.beginPath();
+            ctx.arc(trail[i].x, trail[i].y, size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            ctx.fill();
+        }
+    }
+    
+    // Draw extra ball trail (slightly different tint)
+    if (extraBall && isVisible) {
+        for (let i = 0; i < extraBallTrail.length; i++) {
+            const alpha = i / extraBallTrail.length * 0.35;
+            const size = extraBall.radius * (i / extraBallTrail.length) * 0.8;
+            
+            ctx.beginPath();
+            ctx.arc(extraBallTrail[i].x, extraBallTrail[i].y, size, 0, Math.PI * 2);
+            // Slightly golden tint for extra ball trail
+            ctx.fillStyle = `rgba(${Math.min(255, r + 30)}, ${Math.min(255, g + 30)}, ${b}, ${alpha})`;
+            ctx.fill();
+        }
     }
 }
 
@@ -1016,7 +1139,7 @@ export function drawSuckParticles() {
 }
 
 export function drawShieldEffect() {
-    const { ball, effects } = state;
+    const { ball, extraBall, effects } = state;
     if (!effects.shield.active) return;
     
     // Don't draw shield effect if ball is invisible
@@ -1026,30 +1149,37 @@ export function drawShieldEffect() {
     const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
     const pulse = Math.sin(Date.now() * pulseSpeed) * 0.2 + 0.8;
 
-    ctx.save();
+    function drawShieldAroundBall(targetBall) {
+        ctx.save();
+        
+        const auraRadius = targetBall.radius * 1.8 * pulse;
+        const gradient = ctx.createRadialGradient(targetBall.x, targetBall.y, targetBall.radius, targetBall.x, targetBall.y, auraRadius);
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+        gradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+
+        ctx.beginPath();
+        ctx.arc(targetBall.x, targetBall.y, auraRadius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(targetBall.x, targetBall.y, targetBall.radius * 1.4, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 215, 0, ${0.6 * pulse})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.restore();
+    }
     
-    const auraRadius = ball.radius * 1.8 * pulse;
-    const gradient = ctx.createRadialGradient(ball.x, ball.y, ball.radius, ball.x, ball.y, auraRadius);
-    gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
-    gradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.2)');
-    gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
-
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, auraRadius, 0, Math.PI * 2);
-    ctx.fillStyle = gradient;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius * 1.4, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(255, 215, 0, ${0.6 * pulse})`;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.restore();
+    drawShieldAroundBall(ball);
+    if (extraBall) {
+        drawShieldAroundBall(extraBall);
+    }
 }
 
 export function drawMagnetEffect() {
-    const { ball, effects } = state;
+    const { ball, extraBall, effects } = state;
     if (!effects.magnet.active) return;
     
     // Don't draw magnet effect if ball is invisible
@@ -1059,34 +1189,41 @@ export function drawMagnetEffect() {
     const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
     const pulse = Math.sin(Date.now() * pulseSpeed) * 0.15 + 0.85;
 
-    ctx.save();
+    function drawMagnetAroundBall(targetBall) {
+        ctx.save();
 
-    const numLines = 6;
-    for (let i = 0; i < numLines; i++) {
-        const angle = (i / numLines) * Math.PI * 2 + Date.now() * 0.002;
-        const innerRadius = ball.radius * 1.2;
-        const outerRadius = ball.radius * 1.6 * pulse;
-        
-        const x1 = ball.x + Math.cos(angle) * innerRadius;
-        const y1 = ball.y + Math.sin(angle) * innerRadius;
-        const x2 = ball.x + Math.cos(angle) * outerRadius;
-        const y2 = ball.y + Math.sin(angle) * outerRadius;
-        
+        const numLines = 6;
+        for (let i = 0; i < numLines; i++) {
+            const angle = (i / numLines) * Math.PI * 2 + Date.now() * 0.002;
+            const innerRadius = targetBall.radius * 1.2;
+            const outerRadius = targetBall.radius * 1.6 * pulse;
+            
+            const x1 = targetBall.x + Math.cos(angle) * innerRadius;
+            const y1 = targetBall.y + Math.sin(angle) * innerRadius;
+            const x2 = targetBall.x + Math.cos(angle) * outerRadius;
+            const y2 = targetBall.y + Math.sin(angle) * outerRadius;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = `rgba(255, 107, 53, ${0.4 * pulse})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = `rgba(255, 107, 53, ${0.4 * pulse})`;
+        ctx.arc(targetBall.x, targetBall.y, targetBall.radius * 1.5 * pulse, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 107, 53, ${0.3 * pulse})`;
         ctx.lineWidth = 2;
         ctx.stroke();
+
+        ctx.restore();
     }
-
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius * 1.5 * pulse, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(255, 107, 53, ${0.3 * pulse})`;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.restore();
+    
+    drawMagnetAroundBall(ball);
+    if (extraBall) {
+        drawMagnetAroundBall(extraBall);
+    }
 }
 
 export function drawTimeFreezeEffect() {
@@ -1182,76 +1319,99 @@ export function drawEarthquakeEffect() {
 }
 
 export function drawBall() {
-    const { ball, effects, settings, beingSucked } = state;
+    const { ball, extraBall, effects, settings, beingSucked } = state;
     
     // Check if ball should be invisible (blinking eye effect)
-    if (effects.blinkingEye.active && !isBallVisible() && !beingSucked) {
-        // Draw a faint ghost outline so player knows roughly where ball is
+    const isInvisible = effects.blinkingEye.active && !isBallVisible() && !beingSucked;
+    
+    // Helper function to draw a single ball
+    function drawSingleBall(targetBall, isExtra = false) {
+        if (isInvisible) {
+            // Draw a faint ghost outline so player knows roughly where ball is
+            ctx.save();
+            ctx.globalAlpha = 0.15;
+            ctx.beginPath();
+            ctx.arc(targetBall.x, targetBall.y, targetBall.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = isExtra ? '#ffdd00' : '#ff66ff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+            return;
+        }
+        
+        const colorConfig = BALL_COLORS[settings.ballColor];
+        
+        // Shadow
+        if (!beingSucked) {
+            ctx.beginPath();
+            ctx.ellipse(targetBall.x + 5, targetBall.y + targetBall.radius + 5, targetBall.radius * 0.8, targetBall.radius * 0.3, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fill();
+        }
+
+        // Glow color based on effects
+        if (effects.shield.active && !beingSucked) {
+            ctx.shadowColor = '#ffd700';
+        } else if (effects.magnet.active && !beingSucked) {
+            ctx.shadowColor = '#ff6b35';
+        } else if (isExtra) {
+            ctx.shadowColor = '#ffdd00';  // Golden glow for extra ball
+        } else {
+            ctx.shadowColor = beingSucked ? colorConfig.suckGlow : colorConfig.glow;
+        }
+        ctx.shadowBlur = beingSucked ? 35 : (effects.shield.active || effects.magnet.active ? 30 : 25);
+
         ctx.save();
-        ctx.globalAlpha = 0.15;
+        
+        if (beingSucked && targetBall.suckRotation) {
+            ctx.translate(targetBall.x, targetBall.y);
+            ctx.rotate(targetBall.suckRotation);
+            ctx.translate(-targetBall.x, -targetBall.y);
+        }
+
+        const gradient = ctx.createRadialGradient(
+            targetBall.x - targetBall.radius * 0.3, targetBall.y - targetBall.radius * 0.3, 0,
+            targetBall.x, targetBall.y, targetBall.radius
+        );
+        
+        let colors;
+        if (beingSucked) {
+            colors = colorConfig.suckGradient;
+        } else if (isExtra) {
+            // Slightly golden tint for extra ball
+            colors = ['#ffffcc', colorConfig.gradient[1], colorConfig.gradient[2]];
+        } else {
+            colors = colorConfig.gradient;
+        }
+        gradient.addColorStop(0, colors[0]);
+        gradient.addColorStop(0.5, colors[1]);
+        gradient.addColorStop(1, colors[2]);
+
         ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ff66ff';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.restore();
-        return;  // Don't draw full ball
-    }
-    
-    const colorConfig = BALL_COLORS[settings.ballColor];
-    
-    // Shadow
-    if (!beingSucked) {
-        ctx.beginPath();
-        ctx.ellipse(ball.x + 5, ball.y + ball.radius + 5, ball.radius * 0.8, ball.radius * 0.3, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.arc(targetBall.x, targetBall.y, targetBall.radius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
         ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        // Highlight
+        ctx.beginPath();
+        ctx.arc(targetBall.x - targetBall.radius * 0.3, targetBall.y - targetBall.radius * 0.3, targetBall.radius * 0.3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.fill();
+        
+        ctx.restore();
     }
-
-    // Glow color based on effects
-    if (effects.shield.active && !beingSucked) {
-        ctx.shadowColor = '#ffd700';
-    } else if (effects.magnet.active && !beingSucked) {
-        ctx.shadowColor = '#ff6b35';
-    } else {
-        ctx.shadowColor = beingSucked ? colorConfig.suckGlow : colorConfig.glow;
+    
+    // Draw extra ball first (so primary appears on top)
+    if (extraBall) {
+        drawSingleBall(extraBall, true);
     }
-    ctx.shadowBlur = beingSucked ? 35 : (effects.shield.active || effects.magnet.active ? 30 : 25);
-
-    ctx.save();
     
-    if (beingSucked && ball.suckRotation) {
-        ctx.translate(ball.x, ball.y);
-        ctx.rotate(ball.suckRotation);
-        ctx.translate(-ball.x, -ball.y);
-    }
-
-    const gradient = ctx.createRadialGradient(
-        ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, 0,
-        ball.x, ball.y, ball.radius
-    );
-    
-    const colors = beingSucked ? colorConfig.suckGradient : colorConfig.gradient;
-    gradient.addColorStop(0, colors[0]);
-    gradient.addColorStop(0.5, colors[1]);
-    gradient.addColorStop(1, colors[2]);
-
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = gradient;
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-
-    // Highlight
-    ctx.beginPath();
-    ctx.arc(ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.3, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.fill();
-    
-    ctx.restore();
+    // Draw primary ball
+    drawSingleBall(ball, false);
 }
 
 // ==================== MAIN RENDER ====================

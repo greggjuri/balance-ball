@@ -42,6 +42,8 @@ export function updateSettingsUI() {
         const shrinkBallToggle = document.getElementById('shrinkBallToggle');
         const bigBallzToggle = document.getElementById('bigBallzToggle');
         const timeFreezeToggle = document.getElementById('timeFreezeToggle');
+        const extraBallToggle = document.getElementById('extraBallToggle');
+        const randomToggle = document.getElementById('randomToggle');
         const narrowPlatformToggle = document.getElementById('narrowPlatformToggle');
         const iceModeToggle = document.getElementById('iceModeToggle');
         const blinkingEyeToggle = document.getElementById('blinkingEyeToggle');
@@ -54,6 +56,8 @@ export function updateSettingsUI() {
         if (shrinkBallToggle) shrinkBallToggle.classList.toggle('on', settings.powerUpShrinkBall);
         if (bigBallzToggle) bigBallzToggle.classList.toggle('on', settings.powerUpBigBallz);
         if (timeFreezeToggle) timeFreezeToggle.classList.toggle('on', settings.powerUpTimeFreeze);
+        if (extraBallToggle) extraBallToggle.classList.toggle('on', settings.powerUpExtraBall);
+        if (randomToggle) randomToggle.classList.toggle('on', settings.powerUpRandom);
         if (narrowPlatformToggle) narrowPlatformToggle.classList.toggle('on', settings.powerDownNarrowPlatform);
         if (iceModeToggle) iceModeToggle.classList.toggle('on', settings.powerDownIceMode);
         if (blinkingEyeToggle) blinkingEyeToggle.classList.toggle('on', settings.powerDownBlinkingEye);
@@ -96,6 +100,12 @@ export function togglePowerUp(type) {
             break;
         case 'timeFreeze':
             settings.powerUpTimeFreeze = !settings.powerUpTimeFreeze;
+            break;
+        case 'extraBall':
+            settings.powerUpExtraBall = !settings.powerUpExtraBall;
+            break;
+        case 'random':
+            settings.powerUpRandom = !settings.powerUpRandom;
             break;
         case 'narrowPlatform':
             settings.powerDownNarrowPlatform = !settings.powerDownNarrowPlatform;
