@@ -5,6 +5,13 @@ import { CANVAS, POWERUP, BALL, PHYSICS } from './config.js';
 import { state } from './state.js';
 import { applyPlatformWidth } from './entities.js';
 
+// ==================== UTILITY ====================
+
+// Generate random speed variation (±10% of base speed)
+function getRandomSpeedVariation() {
+    return 0.9 + Math.random() * 0.2;  // Returns 0.9 to 1.1
+}
+
 // ==================== SPAWNING ====================
 
 export function spawnPowerUp() {
@@ -33,7 +40,8 @@ export function spawnPowerUp() {
         x: x,
         y: -POWERUP.RADIUS,
         radius: POWERUP.RADIUS,
-        rotation: 0
+        rotation: 0,
+        speedVariation: getRandomSpeedVariation()  // ±10% random speed
     });
 }
 
@@ -50,13 +58,18 @@ export function updatePowerUps() {
     }
 
     // Move power-ups (also affected by time freeze)
-    const scrollSpeed = effects.timeFreeze.active ? 0 : PHYSICS.SCROLL_SPEED;
-    
     for (let i = powerUps.length - 1; i >= 0; i--) {
-        powerUps[i].y += scrollSpeed;
-        powerUps[i].rotation += 0.03;
+        const pu = powerUps[i];
+        
+        // Only move if time freeze is not active
+        if (!effects.timeFreeze.active) {
+            // Apply base speed and random variation
+            pu.y += PHYSICS.SCROLL_SPEED * pu.speedVariation;
+        }
+        
+        pu.rotation += 0.03;
 
-        if (powerUps[i].y > CANVAS.HEIGHT + powerUps[i].radius) {
+        if (pu.y > CANVAS.HEIGHT + pu.radius) {
             powerUps.splice(i, 1);
         }
     }

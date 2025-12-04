@@ -4,6 +4,13 @@
 import { CANVAS, PHYSICS, BALL, BLACK_HOLE, PLATFORM, SCORE_BALL } from './config.js';
 import { state } from './state.js';
 
+// ==================== UTILITY ====================
+
+// Generate random speed variation (±10% of base speed)
+function getRandomSpeedVariation() {
+    return 0.9 + Math.random() * 0.2;  // Returns 0.9 to 1.1
+}
+
 // ==================== PLATFORM ====================
 
 export function updatePlatform() {
@@ -144,7 +151,8 @@ export function spawnBlackHole() {
         x: x,
         y: -holeRadius,
         radius: holeRadius,
-        rotation: Math.random() * Math.PI * 2
+        rotation: Math.random() * Math.PI * 2,
+        speedVariation: getRandomSpeedVariation()  // ±10% random speed
     });
 }
 
@@ -158,16 +166,21 @@ export function updateBlackHoles() {
     }
 
     // Calculate speed multiplier based on score (5% faster every 20 points, max 150%)
-    const speedMultiplier = getBlackHoleSpeedMultiplier();
-    
-    // Only move black holes if time freeze is not active
-    const scrollSpeed = effects.timeFreeze.active ? 0 : PHYSICS.SCROLL_SPEED * speedMultiplier;
+    const scoreSpeedMultiplier = getBlackHoleSpeedMultiplier();
 
     for (let i = blackHoles.length - 1; i >= 0; i--) {
-        blackHoles[i].y += scrollSpeed;
-        blackHoles[i].rotation += 0.03;
+        const hole = blackHoles[i];
+        
+        // Only move black holes if time freeze is not active
+        if (!effects.timeFreeze.active) {
+            // Apply both score-based multiplier and individual random variation
+            const scrollSpeed = PHYSICS.SCROLL_SPEED * scoreSpeedMultiplier * hole.speedVariation;
+            hole.y += scrollSpeed;
+        }
+        
+        hole.rotation += 0.03;
 
-        if (blackHoles[i].y > CANVAS.HEIGHT + blackHoles[i].radius) {
+        if (hole.y > CANVAS.HEIGHT + hole.radius) {
             blackHoles.splice(i, 1);
         }
     }
@@ -235,7 +248,8 @@ export function spawnScoreBall() {
         speedMultiplier: type.speedMultiplier,
         color: type.color,
         glowColor: type.glowColor,
-        rotation: Math.random() * Math.PI * 2
+        rotation: Math.random() * Math.PI * 2,
+        speedVariation: getRandomSpeedVariation()  // ±10% random speed
     });
 }
 
@@ -250,11 +264,15 @@ export function updateScoreBalls() {
     }
 
     // Move score balls (affected by time freeze)
-    const baseSpeed = effects.timeFreeze.active ? 0 : PHYSICS.SCROLL_SPEED;
-
     for (let i = scoreBalls.length - 1; i >= 0; i--) {
         const sb = scoreBalls[i];
-        sb.y += baseSpeed * sb.speedMultiplier;
+        
+        // Only move if time freeze is not active
+        if (!effects.timeFreeze.active) {
+            // Apply base speed, type multiplier, and random variation
+            sb.y += PHYSICS.SCROLL_SPEED * sb.speedMultiplier * sb.speedVariation;
+        }
+        
         sb.rotation += 0.02;
 
         if (sb.y > CANVAS.HEIGHT + sb.radius) {
