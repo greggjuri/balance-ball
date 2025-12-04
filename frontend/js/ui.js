@@ -186,31 +186,6 @@ function updateEffectDisplay(name, elementId, effect) {
 
 let cachedLeaderboard = null;
 
-export async function loadLeaderboard() {
-    const leaderboardBody = document.getElementById('leaderboardBody');
-    if (!leaderboardBody) return;
-    
-    leaderboardBody.innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
-    
-    const data = await fetchLeaderboard();
-    cachedLeaderboard = data;
-    
-    if (!data || data.length === 0) {
-        leaderboardBody.innerHTML = '<tr><td colspan="5" class="no-scores">No scores yet. Be the first!</td></tr>';
-        return;
-    }
-    
-    leaderboardBody.innerHTML = data.map(entry => `
-        <tr class="${entry.rank <= 3 ? 'top-' + entry.rank : ''}">
-            <td class="rank">${getRankDisplay(entry.rank)}</td>
-            <td class="name">${escapeHtml(entry.name)}</td>
-            <td class="score">${entry.score}</td>
-            <td class="date">${formatDate(entry.created_at)}</td>
-            <td class="message">${escapeHtml(entry.message || '')}</td>
-        </tr>
-    `).join('');
-}
-
 function getRankDisplay(rank) {
     if (rank === 1) return '🥇';
     if (rank === 2) return '🥈';
@@ -222,6 +197,55 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function generateLeaderboardHTML(data) {
+    if (!data || data.length === 0) {
+        return '<tr><td colspan="5" class="no-scores">No scores yet. Be the first!</td></tr>';
+    }
+    
+    return data.map(entry => `
+        <tr class="${entry.rank <= 3 ? 'top-' + entry.rank : ''}">
+            <td class="rank">${getRankDisplay(entry.rank)}</td>
+            <td class="name">${escapeHtml(entry.name)}</td>
+            <td class="score">${entry.score}</td>
+            <td class="date">${formatDate(entry.created_at)}</td>
+            <td class="message">${escapeHtml(entry.message || '')}</td>
+        </tr>
+    `).join('');
+}
+
+export async function loadLeaderboard() {
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    const miniLeaderboardBody = document.getElementById('miniLeaderboardBody');
+    
+    const loadingHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+    
+    // Set loading state for both
+    if (leaderboardBody) {
+        leaderboardBody.innerHTML = loadingHTML;
+    }
+    if (miniLeaderboardBody) {
+        miniLeaderboardBody.innerHTML = loadingHTML;
+    }
+    
+    const data = await fetchLeaderboard();
+    cachedLeaderboard = data;
+    
+    // Full leaderboard (top 20)
+    const fullHtml = generateLeaderboardHTML(data);
+    
+    // Mini leaderboard (top 3 only)
+    const top3Data = data ? data.slice(0, 3) : null;
+    const miniHtml = generateLeaderboardHTML(top3Data);
+    
+    // Update both tables
+    if (leaderboardBody) {
+        leaderboardBody.innerHTML = fullHtml;
+    }
+    if (miniLeaderboardBody) {
+        miniLeaderboardBody.innerHTML = miniHtml;
+    }
 }
 
 export function openLeaderboard() {
@@ -282,8 +306,10 @@ export async function handleScoreSubmit() {
             <p class="submit-success">✓ Score submitted!</p>
         `;
         
-        // Refresh leaderboard
-        loadLeaderboard();
+        // Refresh leaderboard after short delay to ensure database is updated
+        setTimeout(() => {
+            loadLeaderboard();
+        }, 500);
     } else {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Score';
@@ -318,7 +344,8 @@ export async function showGameOver(reason) {
         // Restore saved name
         const savedName = localStorage.getItem('balancePlayerName');
         if (savedName) {
-            document.getElementById('playerName').value = savedName;
+            const nameInput = document.getElementById('playerName');
+            if (nameInput) nameInput.value = savedName;
         }
     }
     
@@ -327,8 +354,8 @@ export async function showGameOver(reason) {
     // Check if score qualifies for leaderboard
     await showScoreSubmission();
     
-    // Load leaderboard in background
-    loadLeaderboard();
+    // Load leaderboard
+    await loadLeaderboard();
 }
 
 export function hideGameOver() {

@@ -2,7 +2,7 @@
 // API calls for online leaderboard
 
 // API base URL - update this after deploying to Render
-const API_BASE = 'https://your-render-app.onrender.com';  // TODO: Update with your Render URL
+const API_BASE = 'https://balance-ball-api.onrender.com';  
 
 // Fetch top 20 scores
 export async function fetchLeaderboard() {
