@@ -30,6 +30,7 @@ export function spawnPowerUp() {
     if (settings.powerDownNarrowPlatform) enabledTypes.push('narrowPlatform');
     if (settings.powerDownIceMode) enabledTypes.push('iceMode');
     if (settings.powerDownBlinkingEye) enabledTypes.push('blinkingEye');
+    if (settings.powerDownEarthquake) enabledTypes.push('earthquake');
     
     if (enabledTypes.length === 0) return;
     
@@ -101,6 +102,10 @@ export function updatePowerUps() {
 
     if (effects.blinkingEye.active && now > effects.blinkingEye.endTime) {
         effects.blinkingEye.active = false;
+    }
+
+    if (effects.earthquake.active && now > effects.earthquake.endTime) {
+        effects.earthquake.active = false;
     }
 }
 
@@ -197,6 +202,12 @@ export function activatePowerUp(type) {
             // Blinking Eye: ball is invisible every other second for 12 seconds
             effects.blinkingEye.active = true;
             effects.blinkingEye.endTime = now + POWERUP.DURATION;
+            break;
+            
+        case 'earthquake':
+            // Earthquake: platform shakes randomly for 12 seconds
+            effects.earthquake.active = true;
+            effects.earthquake.endTime = now + POWERUP.DURATION;
             break;
     }
 }

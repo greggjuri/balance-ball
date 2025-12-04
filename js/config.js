@@ -92,7 +92,8 @@ export const DEFAULT_SETTINGS = {
     powerUpTimeFreeze: true,
     powerDownNarrowPlatform: true,
     powerDownIceMode: true,
-    powerDownBlinkingEye: true
+    powerDownBlinkingEye: true,
+    powerDownEarthquake: true
 };
 
 export const BALL_COLORS = {
@@ -174,6 +175,13 @@ export const POWERUP_TYPES = {
         icon: '👁️',
         color: '#ff66ff',
         description: 'Ball blinks invisible',
+        isPowerDown: true
+    },
+    earthquake: {
+        name: 'Earthquake',
+        icon: '📳',
+        color: '#8b4513',
+        description: 'Platform shakes violently',
         isPowerDown: true
     }
 };

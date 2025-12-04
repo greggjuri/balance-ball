@@ -45,6 +45,7 @@ export function updateSettingsUI() {
         const narrowPlatformToggle = document.getElementById('narrowPlatformToggle');
         const iceModeToggle = document.getElementById('iceModeToggle');
         const blinkingEyeToggle = document.getElementById('blinkingEyeToggle');
+        const earthquakeToggle = document.getElementById('earthquakeToggle');
         
         if (soundToggle) soundToggle.classList.toggle('on', settings.soundEnabled);
         if (shieldToggle) shieldToggle.classList.toggle('on', settings.powerUpShield);
@@ -56,6 +57,7 @@ export function updateSettingsUI() {
         if (narrowPlatformToggle) narrowPlatformToggle.classList.toggle('on', settings.powerDownNarrowPlatform);
         if (iceModeToggle) iceModeToggle.classList.toggle('on', settings.powerDownIceMode);
         if (blinkingEyeToggle) blinkingEyeToggle.classList.toggle('on', settings.powerDownBlinkingEye);
+        if (earthquakeToggle) earthquakeToggle.classList.toggle('on', settings.powerDownEarthquake);
     } catch (error) {
         console.error('updateSettingsUI error:', error);
     }
@@ -104,6 +106,9 @@ export function togglePowerUp(type) {
         case 'blinkingEye':
             settings.powerDownBlinkingEye = !settings.powerDownBlinkingEye;
             break;
+        case 'earthquake':
+            settings.powerDownEarthquake = !settings.powerDownEarthquake;
+            break;
     }
     updateSettingsUI();
 }
@@ -150,6 +155,7 @@ export function updateUI() {
     updateEffectDisplay('narrowPlatform', 'narrowPlatformDisplay', effects.narrowPlatform);
     updateEffectDisplay('iceMode', 'iceModeDisplay', effects.iceMode);
     updateEffectDisplay('blinkingEye', 'blinkingEyeDisplay', effects.blinkingEye);
+    updateEffectDisplay('earthquake', 'earthquakeDisplay', effects.earthquake);
 }
 
 function updateEffectDisplay(name, elementId, effect) {

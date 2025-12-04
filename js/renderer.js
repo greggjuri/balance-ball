@@ -314,6 +314,9 @@ export function drawPowerUps() {
             case 'blinkingEye':
                 drawBlinkingEyePowerUp(pu);
                 break;
+            case 'earthquake':
+                drawEarthquakePowerUp(pu);
+                break;
         }
 
         ctx.restore();
@@ -601,6 +604,86 @@ function drawBlinkingEyePowerUp(pu) {
         ctx.beginPath();
         ctx.moveTo(-eyeWidth / 2, 0);
         ctx.lineTo(eyeWidth / 2, 0);
+        ctx.stroke();
+    }
+
+    ctx.shadowBlur = 0;
+}
+
+function drawEarthquakePowerUp(pu) {
+    const pulse = Math.sin(Date.now() * 0.01) * 0.2 + 1;  // Faster shake pulse
+    const shake = Math.sin(Date.now() * 0.05) * 2;  // Shaking offset
+    
+    ctx.shadowColor = '#8b4513';
+    ctx.shadowBlur = 18 * pulse;
+
+    // Outer glow - earthy brown/orange
+    const glowGradient = ctx.createRadialGradient(0, 0, pu.radius * 0.5, 0, 0, pu.radius * 1.5 * pulse);
+    glowGradient.addColorStop(0, 'rgba(139, 69, 19, 0.5)');
+    glowGradient.addColorStop(1, 'rgba(139, 69, 19, 0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, pu.radius * 1.5 * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Ground/crack base circle
+    const baseGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, pu.radius);
+    baseGradient.addColorStop(0, '#d2691e');
+    baseGradient.addColorStop(0.5, '#8b4513');
+    baseGradient.addColorStop(1, '#654321');
+    
+    ctx.beginPath();
+    ctx.arc(shake * 0.3, 0, pu.radius * 0.9, 0, Math.PI * 2);
+    ctx.fillStyle = baseGradient;
+    ctx.fill();
+    ctx.strokeStyle = '#a0522d';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Crack lines radiating from center
+    ctx.strokeStyle = '#3d2314';
+    ctx.lineWidth = 2;
+    
+    // Main vertical crack
+    ctx.beginPath();
+    ctx.moveTo(shake * 0.5, -pu.radius * 0.7);
+    ctx.lineTo(shake * 0.2, -pu.radius * 0.2);
+    ctx.lineTo(shake * 0.4, pu.radius * 0.1);
+    ctx.lineTo(shake * 0.1, pu.radius * 0.6);
+    ctx.stroke();
+    
+    // Left crack
+    ctx.beginPath();
+    ctx.moveTo(shake * 0.2, -pu.radius * 0.2);
+    ctx.lineTo(-pu.radius * 0.5 + shake, -pu.radius * 0.3);
+    ctx.stroke();
+    
+    // Right crack
+    ctx.beginPath();
+    ctx.moveTo(shake * 0.4, pu.radius * 0.1);
+    ctx.lineTo(pu.radius * 0.6 + shake, pu.radius * 0.2);
+    ctx.stroke();
+
+    // Vibration lines around the circle
+    ctx.strokeStyle = 'rgba(139, 69, 19, 0.6)';
+    ctx.lineWidth = 1.5;
+    
+    for (let i = 0; i < 3; i++) {
+        const offset = (i + 1) * 4;
+        const waveOffset = Math.sin(Date.now() * 0.02 + i) * 2;
+        
+        // Left vibration lines
+        ctx.beginPath();
+        ctx.moveTo(-pu.radius - offset + waveOffset, -pu.radius * 0.3);
+        ctx.lineTo(-pu.radius - offset - 2 + waveOffset, 0);
+        ctx.lineTo(-pu.radius - offset + waveOffset, pu.radius * 0.3);
+        ctx.stroke();
+        
+        // Right vibration lines
+        ctx.beginPath();
+        ctx.moveTo(pu.radius + offset + waveOffset, -pu.radius * 0.3);
+        ctx.lineTo(pu.radius + offset + 2 + waveOffset, 0);
+        ctx.lineTo(pu.radius + offset + waveOffset, pu.radius * 0.3);
         ctx.stroke();
     }
 
@@ -1065,6 +1148,39 @@ export function drawBlinkingEyeEffect() {
     }
 }
 
+export function drawEarthquakeEffect() {
+    const { effects } = state;
+    if (!effects.earthquake.active) return;
+
+    const remaining = effects.earthquake.endTime - Date.now();
+    const pulseSpeed = remaining < 2000 ? 0.3 : 0.1;
+    const pulse = Math.sin(Date.now() * pulseSpeed) * 0.15 + 0.85;
+    
+    ctx.save();
+    
+    // Strong brown/earthy edge glow during earthquake
+    const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS.HEIGHT);
+    gradient.addColorStop(0, `rgba(139, 69, 19, ${0.2 * pulse})`);
+    gradient.addColorStop(0.1, 'rgba(139, 69, 19, 0)');
+    gradient.addColorStop(0.88, 'rgba(139, 69, 19, 0)');
+    gradient.addColorStop(1, `rgba(139, 69, 19, ${0.35 * pulse})`);  // Much stronger at bottom
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
+    
+    // Side gradients - more visible
+    const sideGradient = ctx.createLinearGradient(0, 0, CANVAS.WIDTH, 0);
+    sideGradient.addColorStop(0, `rgba(139, 69, 19, ${0.15 * pulse})`);
+    sideGradient.addColorStop(0.06, 'rgba(139, 69, 19, 0)');
+    sideGradient.addColorStop(0.94, 'rgba(139, 69, 19, 0)');
+    sideGradient.addColorStop(1, `rgba(139, 69, 19, ${0.15 * pulse})`);
+    
+    ctx.fillStyle = sideGradient;
+    ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
+
+    ctx.restore();
+}
+
 export function drawBall() {
     const { ball, effects, settings, beingSucked } = state;
     
@@ -1144,6 +1260,7 @@ export function render() {
     drawBackground();
     drawTimeFreezeEffect();
     drawBlinkingEyeEffect();
+    drawEarthquakeEffect();
     drawBlackHoles();
     drawScoreBalls();
     drawPowerUps();

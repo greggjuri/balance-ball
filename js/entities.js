@@ -14,7 +14,7 @@ function getRandomSpeedVariation() {
 // ==================== PLATFORM ====================
 
 export function updatePlatform() {
-    const { platform, keys } = state;
+    const { platform, keys, effects } = state;
 
     if (keys.a) platform.tilt = Math.max(platform.tilt - platform.tiltSpeed, -platform.maxTilt);
     if (keys.z) platform.tilt = Math.min(platform.tilt + platform.tiltSpeed, platform.maxTilt);
@@ -25,17 +25,35 @@ export function updatePlatform() {
     if (!keys.a && !keys.z) {
         platform.tilt *= 0.96;
     }
+    
+    // Apply earthquake shake effect
+    if (effects.earthquake.active) {
+        // MAJOR earthquake - extremely violent shaking!
+        const shakeIntensity = 50 + Math.sin(Date.now() * 0.015) * 30;  // 20-80 range
+        platform.earthquakeShake = (Math.random() - 0.5) * shakeIntensity;
+        
+        // Strong horizontal position shake
+        const horizontalShake = (Math.random() - 0.5) * 16;
+        platform.x = Math.max(platform.minX, Math.min(platform.x + horizontalShake, platform.maxX));
+    } else {
+        platform.earthquakeShake = 0;
+    }
 }
 
 export function getPlatformAngle() {
-    return Math.atan2(state.platform.tilt * 2, state.platform.width);
+    const { platform } = state;
+    // Include earthquake shake in the effective tilt
+    const effectiveTilt = platform.tilt + (platform.earthquakeShake || 0);
+    return Math.atan2(effectiveTilt * 2, platform.width);
 }
 
 export function getPlatformYAtX(x) {
     const { platform } = state;
     const centerX = platform.x + platform.width / 2;
     const relativeX = (x - centerX) / (platform.width / 2);
-    return platform.y - (platform.tilt * relativeX);
+    // Include earthquake shake in the effective tilt
+    const effectiveTilt = platform.tilt + (platform.earthquakeShake || 0);
+    return platform.y - (effectiveTilt * relativeX);
 }
 
 export function applyPlatformWidth() {

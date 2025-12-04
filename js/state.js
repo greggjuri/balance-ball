@@ -95,7 +95,8 @@ export const state = {
         timeFreeze: { active: false, endTime: 0 },
         narrowPlatform: { active: false, endTime: 0 },
         iceMode: { active: false, endTime: 0 },
-        blinkingEye: { active: false, endTime: 0 }
+        blinkingEye: { active: false, endTime: 0 },
+        earthquake: { active: false, endTime: 0 }
     },
 
     // Ball size state: 'shrunk', 'normal', or 'big' (permanent until countered)

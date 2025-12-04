@@ -233,6 +233,16 @@ h1 {
     color: #ff66ff;
 }
 
+/* Earthquake (Power-Down) - Brown/Earth color */
+.earthquake-stat .stat-value {
+    color: #d2691e;
+    text-shadow: 0 0 10px rgba(210, 105, 30, 0.5);
+}
+
+.earthquake-stat .stat-label {
+    color: #d2691e;
+}
+
 /* Instructions */
 .instructions {
     position: absolute;
@@ -708,6 +718,35 @@ h1 {
     height: 4px;
     background: #000000;
     border-radius: 50%;
+}
+
+.icon-earthquake {
+    width: 22px;
+    height: 22px;
+    background: radial-gradient(circle at 40% 40%, #d2691e, #8b4513, #654321);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(139, 69, 19, 0.6);
+    position: relative;
+}
+.icon-earthquake::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 14px;
+    background: #3d2314;
+}
+.icon-earthquake::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    width: 2px;
+    height: 10px;
+    background: #3d2314;
 }
 
 .powerup-text {
