@@ -4,6 +4,7 @@
 import { state, saveSettings, updateBestScore } from './state.js';
 import { PLATFORM } from './config.js';
 import { getPlatformAngle, applyPlatformWidth } from './entities.js';
+import { fetchLeaderboard, submitScore, checkScore, formatDate } from './leaderboard.js';
 
 // ==================== SETTINGS UI ====================
 
@@ -181,9 +182,118 @@ function updateEffectDisplay(name, elementId, effect) {
     }
 }
 
+// ==================== LEADERBOARD ====================
+
+let cachedLeaderboard = null;
+
+export async function loadLeaderboard() {
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    if (!leaderboardBody) return;
+    
+    leaderboardBody.innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+    
+    const data = await fetchLeaderboard();
+    cachedLeaderboard = data;
+    
+    if (!data || data.length === 0) {
+        leaderboardBody.innerHTML = '<tr><td colspan="5" class="no-scores">No scores yet. Be the first!</td></tr>';
+        return;
+    }
+    
+    leaderboardBody.innerHTML = data.map(entry => `
+        <tr class="${entry.rank <= 3 ? 'top-' + entry.rank : ''}">
+            <td class="rank">${getRankDisplay(entry.rank)}</td>
+            <td class="name">${escapeHtml(entry.name)}</td>
+            <td class="score">${entry.score}</td>
+            <td class="date">${formatDate(entry.created_at)}</td>
+            <td class="message">${escapeHtml(entry.message || '')}</td>
+        </tr>
+    `).join('');
+}
+
+function getRankDisplay(rank) {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return rank;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+export function openLeaderboard() {
+    document.getElementById('leaderboardOverlay').classList.add('active');
+    loadLeaderboard();
+}
+
+export function closeLeaderboard() {
+    document.getElementById('leaderboardOverlay').classList.remove('active');
+}
+
+export function closeLeaderboardOnOverlay(event) {
+    if (event.target.id === 'leaderboardOverlay') {
+        closeLeaderboard();
+    }
+}
+
+// ==================== SCORE SUBMISSION ====================
+
+export async function showScoreSubmission() {
+    const scoreCheck = await checkScore(state.finalScore);
+    
+    if (scoreCheck.wouldRank) {
+        document.getElementById('submitScoreSection').style.display = 'block';
+        document.getElementById('submitRankInfo').textContent = 
+            `Your score would rank #${scoreCheck.rank}!`;
+        document.getElementById('playerName').focus();
+    } else {
+        document.getElementById('submitScoreSection').style.display = 'none';
+    }
+}
+
+export async function handleScoreSubmit() {
+    const nameInput = document.getElementById('playerName');
+    const messageInput = document.getElementById('playerMessage');
+    const submitBtn = document.getElementById('submitScoreBtn');
+    
+    const name = nameInput.value.trim();
+    const message = messageInput.value.trim();
+    
+    if (!name) {
+        nameInput.classList.add('error');
+        nameInput.focus();
+        return;
+    }
+    
+    nameInput.classList.remove('error');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    
+    const result = await submitScore(name, state.finalScore, message);
+    
+    if (result && result.success) {
+        // Save name for next time
+        localStorage.setItem('balancePlayerName', name);
+        
+        document.getElementById('submitScoreSection').innerHTML = `
+            <p class="submit-success">✓ Score submitted!</p>
+        `;
+        
+        // Refresh leaderboard
+        loadLeaderboard();
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Score';
+        alert('Failed to submit score. Please try again.');
+    }
+}
+
 // ==================== GAME OVER ====================
 
-export function showGameOver(reason) {
+export async function showGameOver(reason) {
     state.gameRunning = false;
     state.gameOverReason = reason || 'The ball fell off the platform!';
     
@@ -191,7 +301,34 @@ export function showGameOver(reason) {
 
     document.getElementById('finalScore').textContent = state.finalScore;
     document.getElementById('gameOverReason').textContent = state.gameOverReason;
+    
+    // Reset submission form
+    const submitSection = document.getElementById('submitScoreSection');
+    if (submitSection) {
+        submitSection.style.display = 'none';
+        submitSection.innerHTML = `
+            <p id="submitRankInfo" class="rank-info"></p>
+            <div class="submit-form">
+                <input type="text" id="playerName" placeholder="Your name (max 20)" maxlength="20">
+                <input type="text" id="playerMessage" placeholder="Message (optional, max 30)" maxlength="30">
+                <button id="submitScoreBtn" onclick="handleScoreSubmit()">Submit Score</button>
+            </div>
+        `;
+        
+        // Restore saved name
+        const savedName = localStorage.getItem('balancePlayerName');
+        if (savedName) {
+            document.getElementById('playerName').value = savedName;
+        }
+    }
+    
     document.getElementById('gameOver').style.display = 'block';
+    
+    // Check if score qualifies for leaderboard
+    await showScoreSubmission();
+    
+    // Load leaderboard in background
+    loadLeaderboard();
 }
 
 export function hideGameOver() {
@@ -214,4 +351,8 @@ export function setupGlobalHandlers() {
     window.selectOption = selectOption;
     window.toggleSound = toggleSound;
     window.togglePowerUp = togglePowerUp;
+    window.openLeaderboard = openLeaderboard;
+    window.closeLeaderboard = closeLeaderboard;
+    window.closeLeaderboardOnOverlay = closeLeaderboardOnOverlay;
+    window.handleScoreSubmit = handleScoreSubmit;
 }

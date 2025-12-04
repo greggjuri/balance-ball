@@ -8,7 +8,34 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <button class="settings-btn" onclick="openSettings()">⚙</button>
+    <div class="header-buttons">
+        <button class="header-btn leaderboard-btn" onclick="openLeaderboard()">🏆</button>
+        <button class="header-btn settings-btn" onclick="openSettings()">⚙</button>
+    </div>
+    
+    <!-- Leaderboard Overlay -->
+    <div class="leaderboard-overlay" id="leaderboardOverlay" onclick="closeLeaderboardOnOverlay(event)">
+        <div class="leaderboard-panel">
+            <h2>🏆 LEADERBOARD</h2>
+            <div class="leaderboard-table-wrapper">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <tr><td colspan="5" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="leaderboard-close" onclick="closeLeaderboard()">CLOSE</button>
+        </div>
+    </div>
     
     <!-- Settings Overlay -->
     <div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOnOverlay(event)">
@@ -203,6 +230,38 @@
             <h2>GAME OVER!</h2>
             <p id="gameOverReason">The ball fell off the platform!</p>
             <p>Your score: <span id="finalScore">0</span> points</p>
+            
+            <!-- Score Submission Section -->
+            <div id="submitScoreSection" class="submit-score-section" style="display: none;">
+                <p id="submitRankInfo" class="rank-info"></p>
+                <div class="submit-form">
+                    <input type="text" id="playerName" placeholder="Your name (max 20)" maxlength="20">
+                    <input type="text" id="playerMessage" placeholder="Message (optional, max 30)" maxlength="30">
+                    <button id="submitScoreBtn" onclick="handleScoreSubmit()">Submit Score</button>
+                </div>
+            </div>
+            
+            <!-- Mini Leaderboard -->
+            <div class="mini-leaderboard">
+                <h3>🏆 Top Scores</h3>
+                <div class="leaderboard-table-wrapper mini">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <tr><td colspan="5" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
             <button class="restart-btn" onclick="restartGame()">PLAY AGAIN</button>
             <p class="enter-hint">or press ENTER</p>
         </div>
