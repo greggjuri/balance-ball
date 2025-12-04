@@ -36,9 +36,38 @@ function handleKeyUp(e) {
         }
     }
     
-    // Restart game on Enter when game over
-    if (e.key === 'Enter' && !state.gameRunning && restartCallback) {
-        restartCallback();
+    // Handle Enter key - submit score if focused on input fields
+    if (e.key === 'Enter' && !state.gameRunning) {
+        const activeElement = document.activeElement;
+        const isInScoreForm = activeElement && (
+            activeElement.id === 'playerName' || 
+            activeElement.id === 'playerMessage'
+        );
+        
+        if (isInScoreForm) {
+            // Submit score instead of restarting
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitScoreBtn');
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.click();
+            }
+            return;
+        }
+    }
+    
+    // Restart game on Space when game over
+    if (e.code === 'Space' && !state.gameRunning && restartCallback) {
+        // Don't restart if typing in an input field
+        const activeElement = document.activeElement;
+        const isTyping = activeElement && (
+            activeElement.tagName === 'INPUT' || 
+            activeElement.tagName === 'TEXTAREA'
+        );
+        
+        if (!isTyping) {
+            e.preventDefault();
+            restartCallback();
+        }
     }
     
     // Toggle pause on P key
