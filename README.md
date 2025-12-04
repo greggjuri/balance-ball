@@ -2,7 +2,9 @@
 
 A physics-based browser game where you control a tilting platform to keep a ball balanced while avoiding black holes, collecting score balls, and managing power-ups and power-downs.
 
-![Balance Ball Game](https://img.shields.io/badge/Status-Ready%20for%20Deployment-green)
+**🌐 Play Now: [jurigregg.com/balance-ball](https://jurigregg.com/balance-ball)**
+
+![Balance Ball Game](https://img.shields.io/badge/Status-Live-brightgreen)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
@@ -10,6 +12,8 @@ A physics-based browser game where you control a tilting platform to keep a ball
 ## 🎯 Gameplay
 
 Control a platform by tilting and moving it horizontally to keep a ball balanced. Avoid black holes that scroll down the screen, collect score balls to increase your score, and grab power-ups to help you survive longer—but watch out for power-downs!
+
+**Compete for the top spot on the global leaderboard!**
 
 ### Controls
 
@@ -21,7 +25,7 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 | **M** | Move platform right |
 | **P** | Pause/Resume game |
 | **Enter** | Restart game (when game over) |
-| **Escape** | Close settings |
+| **Escape** | Close settings/leaderboard |
 
 ## ✨ Features
 
@@ -33,127 +37,90 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 - **Pause functionality** - Press P to pause/resume at any time
 - **Progressive difficulty** - Black holes speed up as your score increases
 
+### 🏆 Online Leaderboard
+- **Global top 20** - Compete with players worldwide
+- **Submit your score** - Enter your name and an optional message
+- **Top 3 display** - See the best scores right on the game over screen
+
 ### Score Balls
 | Points | Size | Speed | Color |
 |--------|------|-------|-------|
-| 1 | Large (black hole size) | Slow | Gold |
-| 3 | Medium (default ball size) | Moderate | Green |
-| 5 | Small (shrunk ball size) | Fast | Purple |
+| 1 | Large | Slow | Gold |
+| 3 | Medium | Moderate | Green |
+| 5 | Small | Fast | Purple |
 
 ### Hazards
-- **Black Holes** - Scroll down the screen with gravitational pull
-  - Gravity field pulls the ball when nearby
-  - Getting too close results in a dramatic sucking animation
+- **Black Holes** - Scroll down with gravitational pull
   - Speed increases by 5% every 20 points (max 150%)
-  - Game over if the ball gets caught
+  - Getting caught triggers a dramatic sucking animation
+  - Game over if the ball is consumed
 
 ### Power-Ups (Good Effects)
 | Icon | Name | Effect | Duration |
 |------|------|--------|----------|
-| 🛡️ | Shield | Immunity from black holes and their gravity | 12 seconds |
-| 📏 | Wide Platform | Platform becomes 30% wider | 12 seconds |
-| 🧲 | Magnet | Ball grips platform & resists black hole pull (90%) | 12 seconds |
-| 🔮 | Shrink Ball | Ball shrinks to 50% size (counters Big Ballz) | Permanent |
-| 🏀 | Big Ballz | Ball grows to 140% size (counters Shrink Ball) | Permanent |
+| 🛡️ | Shield | Immunity from black holes | 12 seconds |
+| 📏 | Wide Platform | Platform 30% wider | 12 seconds |
+| 🧲 | Magnet | Ball grips platform & resists pull | 12 seconds |
+| 🔮 | Shrink Ball | Ball shrinks 50% | Permanent |
+| 🏀 | Big Ballz | Ball grows 40% | Permanent |
 | ⏸️ | Time Freeze | Black holes stop moving | 12 seconds |
-| ⚾ | Extra Ball | Spawns a second ball - survive if one is lost | Until lost |
-| 🎲 | Random | Activates a random power-up OR power-down | Varies |
+| ⚾ | Extra Ball | Second ball - survive if one lost | Until lost |
+| 🎲 | Random | Random power-up OR power-down | Varies |
 
 ### Power-Downs (Bad Effects)
 | Icon | Name | Effect | Duration |
 |------|------|--------|----------|
 | 📏 | Narrow Platform | Platform shrinks 30% | 12 seconds |
-| 🧊 | Ice Mode | Platform becomes extremely slippery | 12 seconds |
-| 👁️ | Blinking Eye | Ball turns invisible every other second | 12 seconds |
+| 🧊 | Ice Mode | Platform super slippery | 12 seconds |
+| 👁️ | Blinking Eye | Ball invisible every other second | 12 seconds |
 | 📳 | Earthquake | Platform shakes violently | 12 seconds |
 
-### Customization (Settings)
+### Customization (Settings ⚙️)
 - **Ball Color** - White, Red, or Black
-- **Platform Width** - Short (-10%), Normal, or Wide (+10%)
-- **Sound Effects** - Toggle on/off (coming soon)
+- **Platform Width** - Short, Normal, or Wide
 - **Power-Ups** - Enable/disable individual power-ups
 - **Power-Downs** - Enable/disable individual power-downs
 
 ### Visual Effects
-- Cyberpunk/neon aesthetic
-- Particle trails on the ball
-- Glowing effects on platform and power-ups
-- Pulsing shield aura when protected
-- Magnetic field effect when magnet is active
-- Frozen cyan effect when time freeze is active
-- Icy blue platform when ice mode is active
-- Faint outline when ball is invisible (Blinking Eye)
-- Screen shake and platform tremors (Earthquake)
-- Golden glow on extra ball
+- Cyberpunk/neon aesthetic with animated starfield background
+- Particle trails, glowing effects, pulsing auras
+- Unique visual feedback for each power-up/power-down
 - Dramatic black hole sucking animation
-- Animated background with twinkling stars
 
-## 🚀 Getting Started
+## 🏗️ Architecture
 
-### Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/balance-ball.git
-   cd balance-ball
-   ```
-
-2. **Important:** This game uses ES6 modules, so you need to run a local server:
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   
-   # Using Node.js (with http-server)
-   npx http-server
-   
-   # With caching disabled (recommended for development)
-   npx http-server -c-1
-   ```
-
-3. Navigate to `http://localhost:8000`
-
-### Project Structure
-
+### Frontend (Hostinger)
 ```
 balance-ball/
-├── index.html              # Main HTML file
+├── index.html
 ├── css/
-│   └── styles.css          # All styling
-├── js/
-│   ├── main.js             # Entry point & game loop
-│   ├── config.js           # Constants & settings
-│   ├── state.js            # Game state management
-│   ├── entities.js         # Ball, platform, black holes, score balls
-│   ├── powerups.js         # Power-up system
-│   ├── renderer.js         # All drawing functions
-│   ├── ui.js               # UI & settings management
-│   └── input.js            # Keyboard handling
-├── README.md               # This file
-├── PROJECT_STATUS.md       # Development roadmap
-└── .gitignore              # Git ignore rules
+│   └── styles.css
+└── js/
+    ├── main.js          # Game loop & initialization
+    ├── config.js        # Constants & settings
+    ├── state.js         # Game state management
+    ├── entities.js      # Ball, platform, black holes
+    ├── powerups.js      # Power-up system
+    ├── renderer.js      # Canvas drawing
+    ├── ui.js            # UI & leaderboard
+    ├── input.js         # Keyboard handling
+    └── leaderboard.js   # API calls
 ```
 
-## 🌐 Deployment
+### Backend (Render)
+- Node.js + Express API
+- Endpoints: GET/POST scores
 
-The game is being prepared for online deployment with the following architecture:
-
-| Component | Platform | Purpose |
-|-----------|----------|---------|
-| **Frontend** | Hostinger | Static file hosting (HTML, CSS, JS) |
-| **Backend** | Render | API server for leaderboard |
-| **Database** | Supabase | PostgreSQL for storing high scores |
-
-### Planned Online Features
-- Global leaderboard (Top 20 high scores)
-- Player names with scores
-- Date/time tracking for achievements
+### Database (Supabase)
+- PostgreSQL leaderboard table
+- Top 20 scores with names, dates, messages
 
 ## 🎨 Technical Details
 
-- **ES6 Modules** - Clean, modular code architecture
+- **ES6 Modules** - Clean, modular architecture
 - **HTML5 Canvas** - All game rendering
 - **CSS3** - UI styling with animations
-- **LocalStorage** - Persists best score and settings locally
+- **LocalStorage** - Persists settings and local best score
 
 ### Browser Support
 - Chrome (recommended)
@@ -161,34 +128,24 @@ The game is being prepared for online deployment with the following architecture
 - Safari
 - Edge
 
-**Note:** ES6 modules require running from a web server (not file://)
+## 🚀 Local Development
 
-## 🔧 Configuration
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/balance-ball.git
+   cd balance-ball
+   ```
 
-Settings are automatically saved to localStorage and persist between sessions.
+2. Start a local server (ES6 modules require this):
+   ```bash
+   # Python
+   python -m http.server 8000
+   
+   # Node.js
+   npx http-server -c-1
+   ```
 
-### Default Settings
-```javascript
-{
-    ballColor: 'red',
-    platformWidth: 'normal',
-    soundEnabled: false,
-    // Power-ups
-    powerUpShield: true,
-    powerUpWidePlatform: true,
-    powerUpMagnet: true,
-    powerUpShrinkBall: true,
-    powerUpBigBallz: true,
-    powerUpTimeFreeze: true,
-    powerUpExtraBall: true,
-    powerUpRandom: true,
-    // Power-downs
-    powerDownNarrowPlatform: true,
-    powerDownIceMode: true,
-    powerDownBlinkingEye: true,
-    powerDownEarthquake: true
-}
-```
+3. Open `http://localhost:8000/frontend/`
 
 ## 📝 License
 
@@ -201,6 +158,6 @@ MIT License - feel free to use, modify, and distribute.
 
 ---
 
-**Have fun balancing!** 🎱
+**Have fun balancing! Try to reach the top of the leaderboard!** 🎱🏆
 
-*Last updated: December 2025*
+*Live at [jurigregg.com/balance-ball](https://jurigregg.com/balance-ball)*
