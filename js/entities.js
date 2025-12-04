@@ -254,7 +254,7 @@ export function spawnScoreBall() {
 }
 
 export function updateScoreBalls() {
-    const { scoreBalls, effects } = state;
+    const { scoreBalls } = state;
     
     // Spawn timer
     state.scoreBallSpawnTimer++;
@@ -263,16 +263,11 @@ export function updateScoreBalls() {
         state.scoreBallSpawnTimer = 0;
     }
 
-    // Move score balls (affected by time freeze)
+    // Move score balls (NOT affected by time freeze - only black holes freeze)
     for (let i = scoreBalls.length - 1; i >= 0; i--) {
         const sb = scoreBalls[i];
-        
-        // Only move if time freeze is not active
-        if (!effects.timeFreeze.active) {
-            // Apply base speed, type multiplier, and random variation
-            sb.y += PHYSICS.SCROLL_SPEED * sb.speedMultiplier * sb.speedVariation;
-        }
-        
+        // Apply base speed, type multiplier, and random variation
+        sb.y += PHYSICS.SCROLL_SPEED * sb.speedMultiplier * sb.speedVariation;
         sb.rotation += 0.02;
 
         if (sb.y > CANVAS.HEIGHT + sb.radius) {

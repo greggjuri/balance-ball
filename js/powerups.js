@@ -57,16 +57,11 @@ export function updatePowerUps() {
         state.powerUpSpawnTimer = 0;
     }
 
-    // Move power-ups (also affected by time freeze)
+    // Move power-ups (NOT affected by time freeze - only black holes freeze)
     for (let i = powerUps.length - 1; i >= 0; i--) {
         const pu = powerUps[i];
-        
-        // Only move if time freeze is not active
-        if (!effects.timeFreeze.active) {
-            // Apply base speed and random variation
-            pu.y += PHYSICS.SCROLL_SPEED * pu.speedVariation;
-        }
-        
+        // Apply base speed and random variation
+        pu.y += PHYSICS.SCROLL_SPEED * pu.speedVariation;
         pu.rotation += 0.03;
 
         if (pu.y > CANVAS.HEIGHT + pu.radius) {
