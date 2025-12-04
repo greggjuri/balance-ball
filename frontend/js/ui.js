@@ -219,7 +219,8 @@ export async function loadLeaderboard() {
     const leaderboardBody = document.getElementById('leaderboardBody');
     const miniLeaderboardBody = document.getElementById('miniLeaderboardBody');
     
-    const loadingHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+    const loadingHTML = '<tr><td colspan="5" class="loading"><span class="loading-spinner"></span>Loading...</td></tr>';
+    const wakingUpHTML = '<tr><td colspan="5" class="loading waking-up"><span class="loading-spinner"></span>Server waking up, please wait...</td></tr>';
     
     // Set loading state for both
     if (leaderboardBody) {
@@ -229,7 +230,18 @@ export async function loadLeaderboard() {
         miniLeaderboardBody.innerHTML = loadingHTML;
     }
     
+    // Show "waking up" message if loading takes more than 3 seconds
+    const wakingUpTimeout = setTimeout(() => {
+        if (leaderboardBody) {
+            leaderboardBody.innerHTML = wakingUpHTML;
+        }
+        if (miniLeaderboardBody) {
+            miniLeaderboardBody.innerHTML = wakingUpHTML;
+        }
+    }, 3000);
+    
     const data = await fetchLeaderboard();
+    clearTimeout(wakingUpTimeout);
     cachedLeaderboard = data;
     
     // Full leaderboard (top 20)
@@ -266,15 +278,28 @@ export function closeLeaderboardOnOverlay(event) {
 // ==================== SCORE SUBMISSION ====================
 
 export async function showScoreSubmission() {
+    const submitSection = document.getElementById('submitScoreSection');
+    const rankInfo = document.getElementById('submitRankInfo');
+    
+    // Show checking state
+    if (submitSection) {
+        submitSection.style.display = 'block';
+    }
+    if (rankInfo) {
+        rankInfo.innerHTML = '<span class="loading-spinner"></span>Checking score...';
+    }
+    
     const scoreCheck = await checkScore(state.finalScore);
     
     if (scoreCheck.wouldRank) {
-        document.getElementById('submitScoreSection').style.display = 'block';
-        document.getElementById('submitRankInfo').textContent = 
-            `Your score would rank #${scoreCheck.rank}!`;
+        if (rankInfo) {
+            rankInfo.textContent = `Your score would rank #${scoreCheck.rank}!`;
+        }
         document.getElementById('playerName').focus();
     } else {
-        document.getElementById('submitScoreSection').style.display = 'none';
+        if (submitSection) {
+            submitSection.style.display = 'none';
+        }
     }
 }
 
