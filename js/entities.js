@@ -128,6 +128,15 @@ export function updateBall() {
 
 // ==================== BLACK HOLES ====================
 
+// Calculate black hole speed multiplier based on score
+export function getBlackHoleSpeedMultiplier() {
+    const increases = Math.floor(state.score / BLACK_HOLE.SPEED_INCREASE_INTERVAL);
+    return Math.min(
+        BLACK_HOLE.MAX_SPEED_MULTIPLIER,
+        1 + increases * BLACK_HOLE.SPEED_INCREASE_AMOUNT
+    );
+}
+
 export function spawnBlackHole() {
     const holeRadius = BALL.BASE_RADIUS * 2;
     const x = holeRadius + Math.random() * (CANVAS.WIDTH - holeRadius * 2);
@@ -148,8 +157,11 @@ export function updateBlackHoles() {
         state.spawnTimer = 0;
     }
 
+    // Calculate speed multiplier based on score (5% faster every 20 points, max 150%)
+    const speedMultiplier = getBlackHoleSpeedMultiplier();
+    
     // Only move black holes if time freeze is not active
-    const scrollSpeed = effects.timeFreeze.active ? 0 : PHYSICS.SCROLL_SPEED;
+    const scrollSpeed = effects.timeFreeze.active ? 0 : PHYSICS.SCROLL_SPEED * speedMultiplier;
 
     for (let i = blackHoles.length - 1; i >= 0; i--) {
         blackHoles[i].y += scrollSpeed;

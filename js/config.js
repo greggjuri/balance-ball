@@ -38,7 +38,10 @@ export const BALL = {
 export const BLACK_HOLE = {
     SPAWN_INTERVAL: 200,
     GRAVITY_RADIUS: 150,
-    GRAVITY_STRENGTH: 0.15
+    GRAVITY_STRENGTH: 0.15,
+    SPEED_INCREASE_INTERVAL: 20,  // Points needed for each speed increase
+    SPEED_INCREASE_AMOUNT: 0.05,  // 5% increase per interval
+    MAX_SPEED_MULTIPLIER: 1.5     // Max 150% of default speed
 };
 
 export const POWERUP = {
