@@ -51,29 +51,29 @@ export function spawnPowerUp() {
 
 // ==================== UPDATE ====================
 
-export function updatePowerUps() {
+export function updatePowerUps(dt = 1) {
     const { powerUps, effects } = state;
     
-    // Spawn timer
-    state.powerUpSpawnTimer++;
+    // Spawn timer - accumulate fractional frames
+    state.powerUpSpawnTimer += dt;
     if (state.powerUpSpawnTimer >= POWERUP.SPAWN_INTERVAL) {
         spawnPowerUp();
-        state.powerUpSpawnTimer = 0;
+        state.powerUpSpawnTimer -= POWERUP.SPAWN_INTERVAL;
     }
 
     // Move power-ups (NOT affected by time freeze - only black holes freeze)
     for (let i = powerUps.length - 1; i >= 0; i--) {
         const pu = powerUps[i];
         // Apply base speed and random variation
-        pu.y += PHYSICS.SCROLL_SPEED * pu.speedVariation;
-        pu.rotation += 0.03;
+        pu.y += PHYSICS.SCROLL_SPEED * pu.speedVariation * dt;
+        pu.rotation += 0.03 * dt;
 
         if (pu.y > CANVAS.HEIGHT + pu.radius) {
             powerUps.splice(i, 1);
         }
     }
 
-    // Check effect expirations
+    // Check effect expirations (these use real time, not game time)
     const now = Date.now();
     
     if (effects.shield.active && now > effects.shield.endTime) {

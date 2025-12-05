@@ -13,17 +13,19 @@ function getRandomSpeedVariation() {
 
 // ==================== PLATFORM ====================
 
-export function updatePlatform() {
+export function updatePlatform(dt = 1) {
     const { platform, keys, effects } = state;
 
-    if (keys.a) platform.tilt = Math.max(platform.tilt - platform.tiltSpeed, -platform.maxTilt);
-    if (keys.z) platform.tilt = Math.min(platform.tilt + platform.tiltSpeed, platform.maxTilt);
+    if (keys.a) platform.tilt = Math.max(platform.tilt - platform.tiltSpeed * dt, -platform.maxTilt);
+    if (keys.z) platform.tilt = Math.min(platform.tilt + platform.tiltSpeed * dt, platform.maxTilt);
     
-    if (keys.n) platform.x = Math.max(platform.x - platform.moveSpeed, platform.minX);
-    if (keys.m) platform.x = Math.min(platform.x + platform.moveSpeed, platform.maxX);
+    if (keys.n) platform.x = Math.max(platform.x - platform.moveSpeed * dt, platform.minX);
+    if (keys.m) platform.x = Math.min(platform.x + platform.moveSpeed * dt, platform.maxX);
 
     if (!keys.a && !keys.z) {
-        platform.tilt *= 0.96;
+        // Auto-level decay - apply dt to the decay factor
+        const decayFactor = Math.pow(0.96, dt);
+        platform.tilt *= decayFactor;
     }
     
     // Apply earthquake shake effect
@@ -32,8 +34,8 @@ export function updatePlatform() {
         const shakeIntensity = 50 + Math.sin(Date.now() * 0.015) * 30;  // 20-80 range
         platform.earthquakeShake = (Math.random() - 0.5) * shakeIntensity;
         
-        // Strong horizontal position shake
-        const horizontalShake = (Math.random() - 0.5) * 16;
+        // Strong horizontal position shake (scaled by dt for consistency)
+        const horizontalShake = (Math.random() - 0.5) * 16 * dt;
         platform.x = Math.max(platform.minX, Math.min(platform.x + horizontalShake, platform.maxX));
     } else {
         platform.earthquakeShake = 0;
@@ -87,7 +89,7 @@ export function applyPlatformWidth() {
 // ==================== BALL ====================
 
 // Update a single ball's physics, returns 'fell' if ball fell off screen
-function updateSingleBall(ball, trail, trailLength) {
+function updateSingleBall(ball, trail, trailLength, dt = 1) {
     const { platform, effects } = state;
     const angle = getPlatformAngle();
     
@@ -103,7 +105,7 @@ function updateSingleBall(ball, trail, trailLength) {
     if (ball.x >= platform.x && ball.x <= platform.x + platform.width) {
         if (distanceFromPlatform >= 0 && ball.vy >= 0) {
             ball.y = platformY - ball.radius;
-            ball.vx += ball.ax;
+            ball.vx += ball.ax * dt;
             
             // Determine roll friction based on active effects
             let currentRollFriction;
@@ -115,7 +117,8 @@ function updateSingleBall(ball, trail, trailLength) {
             } else {
                 currentRollFriction = PHYSICS.ROLL_FRICTION;
             }
-            ball.vx *= currentRollFriction;
+            // Apply friction with dt scaling
+            ball.vx *= Math.pow(currentRollFriction, dt);
             
             if (ball.vy > 1) {
                 const currentBounceFactor = effects.magnet.active ? PHYSICS.BOUNCE_FACTOR * 0.1 : PHYSICS.BOUNCE_FACTOR;
@@ -124,15 +127,16 @@ function updateSingleBall(ball, trail, trailLength) {
                 ball.vy = 0;
             }
         } else {
-            ball.vy += ball.ay;
+            ball.vy += ball.ay * dt;
         }
     } else {
-        ball.vy += ball.ay;
+        ball.vy += ball.ay * dt;
     }
 
-    ball.vx *= PHYSICS.FRICTION;
-    ball.x += ball.vx;
-    ball.y += ball.vy;
+    // Apply air friction with dt scaling
+    ball.vx *= Math.pow(PHYSICS.FRICTION, dt);
+    ball.x += ball.vx * dt;
+    ball.y += ball.vy * dt;
 
     // Update trail
     trail.push({ x: ball.x, y: ball.y });
@@ -149,16 +153,16 @@ function updateSingleBall(ball, trail, trailLength) {
     return null;
 }
 
-export function updateBall() {
+export function updateBall(dt = 1) {
     const { ball, trail, extraBall, extraBallTrail } = state;
     
     // Update primary ball
-    const primaryResult = updateSingleBall(ball, trail, BALL.TRAIL_LENGTH);
+    const primaryResult = updateSingleBall(ball, trail, BALL.TRAIL_LENGTH, dt);
     
     // Update extra ball if exists
     let extraResult = null;
     if (extraBall) {
-        extraResult = updateSingleBall(extraBall, extraBallTrail, BALL.TRAIL_LENGTH);
+        extraResult = updateSingleBall(extraBall, extraBallTrail, BALL.TRAIL_LENGTH, dt);
     }
     
     // Handle ball loss
@@ -214,13 +218,14 @@ export function spawnBlackHole() {
     });
 }
 
-export function updateBlackHoles() {
+export function updateBlackHoles(dt = 1) {
     const { blackHoles, effects } = state;
     
-    state.spawnTimer++;
+    // Spawn timer - accumulate fractional frames
+    state.spawnTimer += dt;
     if (state.spawnTimer >= BLACK_HOLE.SPAWN_INTERVAL) {
         spawnBlackHole();
-        state.spawnTimer = 0;
+        state.spawnTimer -= BLACK_HOLE.SPAWN_INTERVAL;
     }
 
     // Calculate speed multiplier based on score (5% faster every 20 points, max 150%)
@@ -233,10 +238,10 @@ export function updateBlackHoles() {
         if (!effects.timeFreeze.active) {
             // Apply both score-based multiplier and individual random variation
             const scrollSpeed = PHYSICS.SCROLL_SPEED * scoreSpeedMultiplier * hole.speedVariation;
-            hole.y += scrollSpeed;
+            hole.y += scrollSpeed * dt;
         }
         
-        hole.rotation += 0.03;
+        hole.rotation += 0.03 * dt;
 
         if (hole.y > CANVAS.HEIGHT + hole.radius) {
             blackHoles.splice(i, 1);
@@ -273,7 +278,7 @@ export function checkBlackHoleCollision() {
     return null;
 }
 
-export function applyBlackHoleGravity() {
+export function applyBlackHoleGravity(dt = 1) {
     const { ball, extraBall, blackHoles, effects } = state;
     
     if (effects.shield.active) return;
@@ -295,8 +300,8 @@ export function applyBlackHoleGravity() {
                 const nx = dx / distance;
                 const ny = dy / distance;
                 
-                targetBall.vx += nx * strength;
-                targetBall.vy += ny * strength;
+                targetBall.vx += nx * strength * dt;
+                targetBall.vy += ny * strength * dt;
             }
         }
     }
@@ -330,22 +335,22 @@ export function spawnScoreBall() {
     });
 }
 
-export function updateScoreBalls() {
+export function updateScoreBalls(dt = 1) {
     const { scoreBalls } = state;
     
-    // Spawn timer
-    state.scoreBallSpawnTimer++;
+    // Spawn timer - accumulate fractional frames
+    state.scoreBallSpawnTimer += dt;
     if (state.scoreBallSpawnTimer >= SCORE_BALL.SPAWN_INTERVAL) {
         spawnScoreBall();
-        state.scoreBallSpawnTimer = 0;
+        state.scoreBallSpawnTimer -= SCORE_BALL.SPAWN_INTERVAL;
     }
 
     // Move score balls (NOT affected by time freeze - only black holes freeze)
     for (let i = scoreBalls.length - 1; i >= 0; i--) {
         const sb = scoreBalls[i];
         // Apply base speed, type multiplier, and random variation
-        sb.y += PHYSICS.SCROLL_SPEED * sb.speedMultiplier * sb.speedVariation;
-        sb.rotation += 0.02;
+        sb.y += PHYSICS.SCROLL_SPEED * sb.speedMultiplier * sb.speedVariation * dt;
+        sb.rotation += 0.02 * dt;
 
         if (sb.y > CANVAS.HEIGHT + sb.radius) {
             scoreBalls.splice(i, 1);
@@ -446,20 +451,22 @@ export function startSuckingAnimation(collision) {
     return 'gameOver';
 }
 
-export function updateSuckingAnimation() {
+export function updateSuckingAnimation(dt = 1) {
     if (!state.beingSucked) return false;
     
     const { ball, suckingHole, suckParticles } = state;
     
-    state.suckProgress += 0.03;
+    state.suckProgress += 0.03 * dt;
     
-    ball.x += (suckingHole.x - ball.x) * 0.1;
-    ball.y += (suckingHole.y - ball.y) * 0.1;
+    // Lerp ball toward hole
+    const lerpFactor = 1 - Math.pow(0.9, dt);
+    ball.x += (suckingHole.x - ball.x) * lerpFactor;
+    ball.y += (suckingHole.y - ball.y) * lerpFactor;
     
     ball.radius = state.suckStartRadius * (1 - state.suckProgress * 0.9);
-    ball.suckRotation = (ball.suckRotation || 0) + 0.3 * (1 + state.suckProgress * 3);
+    ball.suckRotation = (ball.suckRotation || 0) + 0.3 * dt * (1 + state.suckProgress * 3);
     
-    if (Math.random() < 0.5) {
+    if (Math.random() < 0.5 * dt) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 2 + Math.random() * 3;
         suckParticles.push({
@@ -479,12 +486,12 @@ export function updateSuckingAnimation() {
         const dist = Math.sqrt(dx * dx + dy * dy);
         
         if (dist > 0) {
-            p.vx += (dx / dist) * 0.5;
-            p.vy += (dy / dist) * 0.5;
+            p.vx += (dx / dist) * 0.5 * dt;
+            p.vy += (dy / dist) * 0.5 * dt;
         }
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 0.03;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= 0.03 * dt;
         
         if (p.life <= 0 || dist < suckingHole.radius * 0.3) {
             suckParticles.splice(i, 1);
