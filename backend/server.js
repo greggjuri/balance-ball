@@ -37,14 +37,16 @@ app.get('/', (req, res) => {
     res.json({ status: 'ok', game: 'balance-ball' });
 });
 
-// GET /api/balance-ball/scores - Fetch top 20 scores
+// GET /api/balance-ball/scores - Fetch top scores (default 10)
 app.get('/api/balance-ball/scores', async (req, res) => {
     try {
+        const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 20);
+        
         const { data, error } = await supabase
             .from('leaderboard')
             .select('id, name, score, message, created_at')
             .order('score', { ascending: false })
-            .limit(20);
+            .limit(limit);
 
         if (error) {
             console.error('Supabase error:', error);
@@ -103,12 +105,12 @@ app.post('/api/balance-ball/score', async (req, res) => {
             return res.status(500).json({ error: 'Failed to save score' });
         }
 
-        // Check if this score made it to top 20
+        // Check if this score made it to top 10
         const { data: topScores } = await supabase
             .from('leaderboard')
             .select('id')
             .order('score', { ascending: false })
-            .limit(20);
+            .limit(10);
 
         const isTopScore = topScores?.some(s => s.id === data.id) || false;
 
@@ -123,7 +125,7 @@ app.post('/api/balance-ball/score', async (req, res) => {
     }
 });
 
-// Check if a score would make top 20
+// Check if a score would make top 10
 app.get('/api/balance-ball/check-score/:score', async (req, res) => {
     try {
         const score = parseInt(req.params.score);
@@ -136,7 +138,7 @@ app.get('/api/balance-ball/check-score/:score', async (req, res) => {
             .from('leaderboard')
             .select('score')
             .order('score', { ascending: false })
-            .limit(20);
+            .limit(10);
 
         if (error) {
             return res.status(500).json({ error: 'Failed to check score' });
@@ -149,7 +151,7 @@ app.get('/api/balance-ball/check-score/:score', async (req, res) => {
             rank++;
         }
 
-        const wouldRank = rank <= 20 || data.length < 20;
+        const wouldRank = rank <= 10 || data.length < 10;
 
         res.json({ wouldRank, rank: wouldRank ? rank : null });
     } catch (err) {

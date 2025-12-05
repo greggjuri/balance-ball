@@ -210,7 +210,7 @@ export async function loadLeaderboard() {
     clearTimeout(wakingUpTimeout);
     cachedLeaderboard = data;
     
-    // Full leaderboard (top 20)
+    // Full leaderboard (top 10)
     const fullHtml = generateLeaderboardHTML(data);
     
     // Mini leaderboard (top 3 only)

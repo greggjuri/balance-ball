@@ -4,10 +4,10 @@
 // API base URL - update this after deploying to Render
 const API_BASE = 'https://balance-ball-api.onrender.com';  
 
-// Fetch top 20 scores
+// Fetch top 10 scores
 export async function fetchLeaderboard() {
     try {
-        const response = await fetch(`${API_BASE}/api/balance-ball/scores`);
+        const response = await fetch(`${API_BASE}/api/balance-ball/scores?limit=10`);
         if (!response.ok) throw new Error('Failed to fetch leaderboard');
         return await response.json();
     } catch (error) {
@@ -32,7 +32,7 @@ export async function submitScore(name, score, message = '') {
     }
 }
 
-// Check if score would make top 20
+// Check if score would make top 10
 export async function checkScore(score) {
     try {
         const response = await fetch(`${API_BASE}/api/balance-ball/check-score/${score}`);

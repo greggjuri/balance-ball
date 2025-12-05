@@ -831,11 +831,9 @@ h1 {
     background: linear-gradient(145deg, #1a1a2e, #16213e);
     border: 2px solid #ffd700;
     border-radius: 20px;
-    padding: 2rem;
+    padding: 1.5rem;
     max-width: 700px;
     width: 95%;
-    max-height: 85vh;
-    overflow-y: auto;
     box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
 }
 
@@ -843,21 +841,20 @@ h1 {
     font-family: 'Russo One', sans-serif;
     color: #ffd700;
     text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-size: 1.6rem;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 /* Leaderboard Table */
 .leaderboard-table-wrapper {
-    max-height: 400px;
-    overflow-y: auto;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .leaderboard-table-wrapper.mini {
     max-height: 200px;
+    overflow-y: auto;
 }
 
 .leaderboard-table {
@@ -867,26 +864,23 @@ h1 {
 }
 
 .leaderboard-table thead {
-    position: sticky;
-    top: 0;
     background: #1a1a2e;
-    z-index: 1;
 }
 
 .leaderboard-table th {
-    padding: 0.75rem 0.5rem;
+    padding: 0.4rem 0.5rem;
     text-align: left;
     color: #00d9ff;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 2px solid rgba(0, 217, 255, 0.3);
 }
 
 .leaderboard-table td {
-    padding: 0.6rem 0.5rem;
+    padding: 0.35rem 0.5rem;
     color: rgba(255, 255, 255, 0.8);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -948,21 +942,21 @@ h1 {
 .leaderboard-table .no-scores {
     text-align: center;
     color: rgba(255, 255, 255, 0.5);
-    padding: 2rem;
+    padding: 1rem;
     font-style: italic;
 }
 
 .leaderboard-close {
     display: block;
     width: 100%;
-    margin-top: 1.5rem;
-    padding: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.6rem;
     background: linear-gradient(145deg, #ffd700, #cc9900);
     border: none;
     border-radius: 10px;
     color: #1a1a2e;
     font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
