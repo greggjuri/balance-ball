@@ -3,6 +3,7 @@
 
 import { state } from './state.js';
 import { closeSettings } from './ui.js';
+import { startMusicOnFirstInput } from './audio.js';
 
 let restartCallback = null;
 
@@ -15,6 +16,11 @@ export function initInput(onRestart) {
 
 function handleKeyDown(e) {
     const key = e.key.toLowerCase();
+    
+    // Start music on first game input
+    if (state.keys.hasOwnProperty(key)) {
+        startMusicOnFirstInput();
+    }
     
     if (state.keys.hasOwnProperty(key)) {
         state.keys[key] = true;

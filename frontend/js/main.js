@@ -19,6 +19,7 @@ import { updatePowerUps, checkPowerUpCollision } from './powerups.js';
 import { initRenderer, render } from './renderer.js';
 import { initUI, updateUI, showGameOver, hideGameOver, applySettingsToGame, setupGlobalHandlers } from './ui.js';
 import { initInput } from './input.js';
+import { initAudio, onGameOver, onGameRestart } from './audio.js';
 
 // ==================== GAME CONTROL ====================
 
@@ -29,6 +30,9 @@ function restartGame() {
     state.ball.x = state.platform.x + state.platform.width / 2;
     state.ball.radius = BALL.BASE_RADIUS;
     hideGameOver();
+    
+    // Restart music
+    onGameRestart();
 }
 
 // Make restartGame available globally for HTML button
@@ -48,12 +52,16 @@ function gameLoop() {
                 updateScoreBalls();
                 updatePowerUps();
                 if (updateSuckingAnimation()) {
+                    // Fade out music on game over
+                    onGameOver();
                     showGameOver('The ball was sucked into a black hole!');
                 }
             } else {
                 updatePlatform();
                 const ballResult = updateBall();
                 if (ballResult === 'fell') {
+                    // Fade out music on game over
+                    onGameOver();
                     showGameOver('The ball fell off the platform!');
                 }
                 
@@ -119,6 +127,9 @@ function init() {
         
         initInput(restartGame);
         console.log('Balance Ball: Input initialized');
+        
+        initAudio();
+        console.log('Balance Ball: Audio initialized');
         
         setupGlobalHandlers();
         console.log('Balance Ball: Global handlers setup');

@@ -83,7 +83,7 @@ export const SCORE_BALL = {
 export const DEFAULT_SETTINGS = {
     ballColor: 'red',
     platformWidth: 'normal',
-    soundEnabled: false,
+    musicEnabled: false,
     powerUpShield: true,
     powerUpWidePlatform: true,
     powerUpMagnet: true,

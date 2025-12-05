@@ -5,6 +5,7 @@ import { state, saveSettings, updateBestScore } from './state.js';
 import { PLATFORM } from './config.js';
 import { getPlatformAngle, applyPlatformWidth } from './entities.js';
 import { fetchLeaderboard, submitScore, checkScore, formatDate } from './leaderboard.js';
+import { toggleMusic as audioToggleMusic } from './audio.js';
 
 // ==================== SETTINGS UI ====================
 
@@ -36,7 +37,7 @@ export function updateSettingsUI() {
         });
         
         // Toggle switches - use optional chaining in case elements don't exist
-        const soundToggle = document.getElementById('soundToggle');
+        const musicToggle = document.getElementById('musicToggle');
         const shieldToggle = document.getElementById('shieldToggle');
         const widePlatformToggle = document.getElementById('widePlatformToggle');
         const magnetToggle = document.getElementById('magnetToggle');
@@ -50,7 +51,7 @@ export function updateSettingsUI() {
         const blinkingEyeToggle = document.getElementById('blinkingEyeToggle');
         const earthquakeToggle = document.getElementById('earthquakeToggle');
         
-        if (soundToggle) soundToggle.classList.toggle('on', settings.soundEnabled);
+        if (musicToggle) musicToggle.classList.toggle('on', settings.musicEnabled);
         if (shieldToggle) shieldToggle.classList.toggle('on', settings.powerUpShield);
         if (widePlatformToggle) widePlatformToggle.classList.toggle('on', settings.powerUpWidePlatform);
         if (magnetToggle) magnetToggle.classList.toggle('on', settings.powerUpMagnet);
@@ -75,8 +76,8 @@ export function selectOption(element) {
     updateSettingsUI();
 }
 
-export function toggleSound() {
-    state.settings.soundEnabled = !state.settings.soundEnabled;
+export function toggleMusic() {
+    audioToggleMusic();
     updateSettingsUI();
 }
 
@@ -401,7 +402,7 @@ export function setupGlobalHandlers() {
     window.closeSettings = closeSettings;
     window.closeSettingsOnOverlay = closeSettingsOnOverlay;
     window.selectOption = selectOption;
-    window.toggleSound = toggleSound;
+    window.toggleMusic = toggleMusic;
     window.togglePowerUp = togglePowerUp;
     window.openLeaderboard = openLeaderboard;
     window.closeLeaderboard = closeLeaderboard;

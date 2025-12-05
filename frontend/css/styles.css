@@ -520,6 +520,68 @@ h1 {
     margin: 1.5rem 0;
 }
 
+/* Audio Toggle Option */
+.audio-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.audio-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Music icon - speaker with notes */
+.icon-music {
+    position: relative;
+    width: 28px;
+    height: 22px;
+}
+
+.icon-music::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 10px;
+    background: linear-gradient(180deg, #50fa7b 0%, #00cc55 100%);
+    border-radius: 2px;
+}
+
+.icon-music::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 10px solid #50fa7b;
+}
+
+/* Music notes decoration */
+.toggle-option:has(.icon-music) .icon-music {
+    animation: music-pulse 1.5s ease-in-out infinite;
+}
+
+.toggle-switch.on + .toggle-option .icon-music,
+.toggle-option:has(.toggle-switch.on) .icon-music {
+    animation: music-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes music-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
 /* Power-up Options */
 .powerup-option {
     flex-direction: row;

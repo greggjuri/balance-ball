@@ -80,8 +80,11 @@
             <div class="setting-group">
                 <h3>Audio</h3>
                 <div class="toggle-option">
-                    <span class="toggle-label">Sound Effects</span>
-                    <div class="toggle-switch" id="soundToggle" onclick="toggleSound()"></div>
+                    <div class="audio-info">
+                        <div class="audio-icon icon-music"></div>
+                        <span class="toggle-label">Music</span>
+                    </div>
+                    <div class="toggle-switch" id="musicToggle" onclick="toggleMusic()"></div>
                 </div>
             </div>
 
@@ -340,10 +343,6 @@
                 <span class="key-label">Pause</span>
             </div>
         </div>
-    </div>
-
-    <div class="instructions">
-        Use A/Z to tilt the platform • Use N/M to move it left and right • Press P to pause • Keep the ball balanced!
     </div>
 
     <script type="module" src="js/main.js"></script>
