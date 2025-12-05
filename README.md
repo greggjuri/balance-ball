@@ -36,6 +36,7 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 - **Score-based gameplay** - Collect score balls to increase your score
 - **Pause functionality** - Press P to pause/resume at any time
 - **Progressive difficulty** - Black holes speed up as your score increases
+- **Frame-rate independent** - Consistent gameplay speed on all devices (30Hz to 144Hz+)
 
 ### 🏆 Online Leaderboard
 - **Global top 20** - Compete with players worldwide
@@ -121,6 +122,7 @@ balance-ball/
 - **HTML5 Canvas** - All game rendering
 - **CSS3** - UI styling with animations
 - **LocalStorage** - Persists settings and local best score
+- **Delta Time Physics** - Frame-rate independent gameplay
 
 ### Browser Support
 - Chrome (recommended)

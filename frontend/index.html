@@ -11,6 +11,80 @@
     <div class="header-buttons">
         <button class="header-btn leaderboard-btn" onclick="openLeaderboard()">🏆</button>
         <button class="header-btn settings-btn" onclick="openSettings()">⚙</button>
+        <button class="header-btn help-btn" onclick="openHelp()">?</button>
+    </div>
+    
+    <!-- Help Overlay -->
+    <div class="help-overlay" id="helpOverlay" onclick="closeHelpOnOverlay(event)">
+        <div class="help-panel">
+            <h2>? HOW TO PLAY</h2>
+            
+            <div class="help-section">
+                <h3>Goal</h3>
+                <p>Keep the ball balanced on the platform while avoiding black holes and collecting score balls!</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>Controls</h3>
+                <div class="help-controls">
+                    <div class="help-control-group">
+                        <h4>Tilt Platform</h4>
+                        <div class="help-key-row">
+                            <span class="help-key">A</span>
+                            <span>Tilt Left</span>
+                        </div>
+                        <div class="help-key-row">
+                            <span class="help-key">Z</span>
+                            <span>Tilt Right</span>
+                        </div>
+                    </div>
+                    <div class="help-control-group">
+                        <h4>Move Platform</h4>
+                        <div class="help-key-row">
+                            <span class="help-key">N</span>
+                            <span>Move Left</span>
+                        </div>
+                        <div class="help-key-row">
+                            <span class="help-key">M</span>
+                            <span>Move Right</span>
+                        </div>
+                    </div>
+                    <div class="help-control-group">
+                        <h4>Other</h4>
+                        <div class="help-key-row">
+                            <span class="help-key">P</span>
+                            <span>Pause Game</span>
+                        </div>
+                        <div class="help-key-row">
+                            <span class="help-key">SPACE</span>
+                            <span>Restart (when game over)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-section">
+                <h3>Scoring</h3>
+                <p>Collect score balls to earn points. Smaller balls move faster but are worth more!</p>
+                <div class="help-score-balls">
+                    <div class="help-ball gold">1 pt</div>
+                    <div class="help-ball green">3 pts</div>
+                    <div class="help-ball purple">5 pts</div>
+                </div>
+            </div>
+            
+            <div class="help-section">
+                <h3>Tips</h3>
+                <ul class="help-tips">
+                    <li>The platform auto-levels when you release the tilt keys</li>
+                    <li>Black holes speed up every 20 points</li>
+                    <li>Grab power-ups for special abilities</li>
+                    <li>Watch out for power-downs (red glow)!</li>
+                </ul>
+            </div>
+            
+            <button class="help-close" onclick="closeHelp()">GOT IT!</button>
+        </div>
     </div>
     
     <!-- Leaderboard Overlay -->
@@ -268,80 +342,38 @@
         </div>
     </div>
 
-    <div class="controls-info">
-        <div class="control-group">
-            <h3>Tilt</h3>
-            <div class="key-row">
-                <div class="key" id="keyA">A</div>
-                <span class="key-label">Tilt Left</span>
-            </div>
-            <div class="key-row">
-                <div class="key" id="keyZ">Z</div>
-                <span class="key-label">Tilt Right</span>
-            </div>
+    <div class="stats-bar">
+        <div class="stat shield-stat" style="display: none;">
+            <div class="stat-label">🛡️ Shield</div>
+            <div class="stat-value shield-value" id="shieldDisplay">0.0s</div>
         </div>
-
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-label">Score</div>
-                <div class="stat-value" id="scoreDisplay">0</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Best</div>
-                <div class="stat-value" id="bestDisplay">0</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Angle</div>
-                <div class="stat-value" id="angleDisplay">0°</div>
-            </div>
-            <div class="stat shield-stat" style="display: none;">
-                <div class="stat-label">🛡️ Shield</div>
-                <div class="stat-value shield-value" id="shieldDisplay">0.0s</div>
-            </div>
-            <div class="stat wide-platform-stat" style="display: none;">
-                <div class="stat-label">📏 Wide</div>
-                <div class="stat-value wide-platform-value" id="widePlatformDisplay">0.0s</div>
-            </div>
-            <div class="stat magnet-stat" style="display: none;">
-                <div class="stat-label">🧲 Magnet</div>
-                <div class="stat-value magnet-value" id="magnetDisplay">0.0s</div>
-            </div>
-            <div class="stat time-freeze-stat" style="display: none;">
-                <div class="stat-label">⏸️ Freeze</div>
-                <div class="stat-value time-freeze-value" id="timeFreezeDisplay">0.0s</div>
-            </div>
-            <div class="stat narrow-platform-stat" style="display: none;">
-                <div class="stat-label">📏 Narrow</div>
-                <div class="stat-value narrow-platform-value" id="narrowPlatformDisplay">0.0s</div>
-            </div>
-            <div class="stat ice-mode-stat" style="display: none;">
-                <div class="stat-label">🧊 Ice</div>
-                <div class="stat-value ice-mode-value" id="iceModeDisplay">0.0s</div>
-            </div>
-            <div class="stat blinking-eye-stat" style="display: none;">
-                <div class="stat-label">👁️ Blink</div>
-                <div class="stat-value blinking-eye-value" id="blinkingEyeDisplay">0.0s</div>
-            </div>
-            <div class="stat earthquake-stat" style="display: none;">
-                <div class="stat-label">📳 Quake</div>
-                <div class="stat-value earthquake-value" id="earthquakeDisplay">0.0s</div>
-            </div>
+        <div class="stat wide-platform-stat" style="display: none;">
+            <div class="stat-label">📏 Wide</div>
+            <div class="stat-value wide-platform-value" id="widePlatformDisplay">0.0s</div>
         </div>
-
-        <div class="control-group">
-            <h3>Move</h3>
-            <div class="key-row">
-                <div class="key" id="keyN">N</div>
-                <span class="key-label">Move Left</span>
-            </div>
-            <div class="key-row">
-                <div class="key" id="keyM">M</div>
-                <span class="key-label">Move Right</span>
-            </div>
-            <div class="key-row">
-                <div class="key" id="keyP">P</div>
-                <span class="key-label">Pause</span>
-            </div>
+        <div class="stat magnet-stat" style="display: none;">
+            <div class="stat-label">🧲 Magnet</div>
+            <div class="stat-value magnet-value" id="magnetDisplay">0.0s</div>
+        </div>
+        <div class="stat time-freeze-stat" style="display: none;">
+            <div class="stat-label">⏸️ Freeze</div>
+            <div class="stat-value time-freeze-value" id="timeFreezeDisplay">0.0s</div>
+        </div>
+        <div class="stat narrow-platform-stat" style="display: none;">
+            <div class="stat-label">📏 Narrow</div>
+            <div class="stat-value narrow-platform-value" id="narrowPlatformDisplay">0.0s</div>
+        </div>
+        <div class="stat ice-mode-stat" style="display: none;">
+            <div class="stat-label">🧊 Ice</div>
+            <div class="stat-value ice-mode-value" id="iceModeDisplay">0.0s</div>
+        </div>
+        <div class="stat blinking-eye-stat" style="display: none;">
+            <div class="stat-label">👁️ Blink</div>
+            <div class="stat-value blinking-eye-value" id="blinkingEyeDisplay">0.0s</div>
+        </div>
+        <div class="stat earthquake-stat" style="display: none;">
+            <div class="stat-label">📳 Quake</div>
+            <div class="stat-value earthquake-value" id="earthquakeDisplay">0.0s</div>
         </div>
     </div>
 

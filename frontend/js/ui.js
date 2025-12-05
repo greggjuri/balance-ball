@@ -3,7 +3,7 @@
 
 import { state, saveSettings, updateBestScore } from './state.js';
 import { PLATFORM } from './config.js';
-import { getPlatformAngle, applyPlatformWidth } from './entities.js';
+import { applyPlatformWidth } from './entities.js';
 import { fetchLeaderboard, submitScore, checkScore, formatDate } from './leaderboard.js';
 import { toggleMusic as audioToggleMusic } from './audio.js';
 
@@ -144,22 +144,9 @@ export function applySettingsToGame() {
 // ==================== GAME UI ====================
 
 export function updateUI() {
-    const { gameRunning, beingSucked, score, finalScore, bestScore, effects } = state;
-    
-    // Score display
-    if (gameRunning && !beingSucked) {
-        document.getElementById('scoreDisplay').textContent = score;
-    } else if (finalScore !== undefined) {
-        document.getElementById('scoreDisplay').textContent = finalScore;
-    }
-    
-    document.getElementById('bestDisplay').textContent = bestScore;
-    
-    // Angle display
-    const angleDegrees = (getPlatformAngle() * 180 / Math.PI).toFixed(1);
-    document.getElementById('angleDisplay').textContent = angleDegrees + '°';
+    const { effects } = state;
 
-    // Power-up timers
+    // Power-up timers (these remain in the HTML stats bar)
     updateEffectDisplay('shield', 'shieldDisplay', effects.shield);
     updateEffectDisplay('widePlatform', 'widePlatformDisplay', effects.widePlatform);
     updateEffectDisplay('magnet', 'magnetDisplay', effects.magnet);
@@ -273,6 +260,22 @@ export function closeLeaderboard() {
 export function closeLeaderboardOnOverlay(event) {
     if (event.target.id === 'leaderboardOverlay') {
         closeLeaderboard();
+    }
+}
+
+// ==================== HELP ====================
+
+export function openHelp() {
+    document.getElementById('helpOverlay').classList.add('active');
+}
+
+export function closeHelp() {
+    document.getElementById('helpOverlay').classList.remove('active');
+}
+
+export function closeHelpOnOverlay(event) {
+    if (event.target.id === 'helpOverlay') {
+        closeHelp();
     }
 }
 
@@ -391,7 +394,6 @@ export function hideGameOver() {
 // ==================== INITIALIZATION ====================
 
 export function initUI() {
-    document.getElementById('bestDisplay').textContent = state.bestScore;
     applySettingsToGame();
     updateSettingsUI();
 }
@@ -407,5 +409,8 @@ export function setupGlobalHandlers() {
     window.openLeaderboard = openLeaderboard;
     window.closeLeaderboard = closeLeaderboard;
     window.closeLeaderboardOnOverlay = closeLeaderboardOnOverlay;
+    window.openHelp = openHelp;
+    window.closeHelp = closeHelp;
+    window.closeHelpOnOverlay = closeHelpOnOverlay;
     window.handleScoreSubmit = handleScoreSubmit;
 }

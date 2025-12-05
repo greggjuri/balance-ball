@@ -2,7 +2,7 @@
 // Keyboard input handling
 
 import { state } from './state.js';
-import { closeSettings } from './ui.js';
+import { closeSettings, closeHelp } from './ui.js';
 import { startMusicOnFirstInput } from './audio.js';
 
 let restartCallback = null;
@@ -81,8 +81,9 @@ function handleKeyUp(e) {
         state.gamePaused = !state.gamePaused;
     }
     
-    // Close settings on Escape
+    // Close settings/help on Escape
     if (e.key === 'Escape') {
         closeSettings();
+        closeHelp();
     }
 }

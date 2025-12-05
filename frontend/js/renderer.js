@@ -4,6 +4,7 @@
 import { CANVAS, BLACK_HOLE, BALL_COLORS, BALL } from './config.js';
 import { state } from './state.js';
 import { isBallVisible } from './powerups.js';
+import { getPlatformAngle } from './entities.js';
 
 let ctx;
 
@@ -34,6 +35,70 @@ export function drawBackground() {
         ctx.lineTo(CANVAS.WIDTH, y);
         ctx.stroke();
     }
+}
+
+// ==================== HUD (In-Game Display) ====================
+
+export function drawHUD() {
+    const { score, bestScore, gameRunning, beingSucked, finalScore } = state;
+    const padding = 20;
+    
+    ctx.save();
+    
+    // Get current score to display
+    const displayScore = (gameRunning && !beingSucked) ? score : (finalScore || score);
+    
+    // Score (top left)
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    
+    // Label
+    ctx.font = '12px Orbitron, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText('SCORE', padding, padding);
+    
+    // Value
+    ctx.font = 'bold 28px Orbitron, sans-serif';
+    ctx.fillStyle = '#00d9ff';
+    ctx.shadowColor = '#00d9ff';
+    ctx.shadowBlur = 10;
+    ctx.fillText(displayScore.toString(), padding, padding + 16);
+    ctx.shadowBlur = 0;
+    
+    // Best Score (top center)
+    ctx.textAlign = 'center';
+    
+    // Label
+    ctx.font = '12px Orbitron, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText('BEST', CANVAS.WIDTH / 2, padding);
+    
+    // Value
+    ctx.font = 'bold 28px Orbitron, sans-serif';
+    ctx.fillStyle = '#ffd700';
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 10;
+    ctx.fillText(bestScore.toString(), CANVAS.WIDTH / 2, padding + 16);
+    ctx.shadowBlur = 0;
+    
+    // Angle (top right)
+    const angleDegrees = (getPlatformAngle() * 180 / Math.PI).toFixed(1);
+    ctx.textAlign = 'right';
+    
+    // Label
+    ctx.font = '12px Orbitron, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText('ANGLE', CANVAS.WIDTH - padding, padding);
+    
+    // Value
+    ctx.font = 'bold 28px Orbitron, sans-serif';
+    ctx.fillStyle = '#e94560';
+    ctx.shadowColor = '#e94560';
+    ctx.shadowBlur = 10;
+    ctx.fillText(angleDegrees + '°', CANVAS.WIDTH - padding, padding + 16);
+    ctx.shadowBlur = 0;
+    
+    ctx.restore();
 }
 
 // ==================== PLATFORM ====================
@@ -1430,6 +1495,7 @@ export function render() {
     drawShieldEffect();
     drawMagnetEffect();
     drawBall();
+    drawHUD();
     
     // Draw pause overlay
     if (state.gamePaused) {
