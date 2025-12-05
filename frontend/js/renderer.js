@@ -101,6 +101,88 @@ export function drawHUD() {
     ctx.restore();
 }
 
+// ==================== EFFECT TIMERS (Bottom Center) ====================
+
+export function drawEffectTimers() {
+    const { effects } = state;
+    const now = Date.now();
+    
+    // Collect active effects
+    const activeEffects = [];
+    
+    const effectConfig = {
+        shield: { label: 'SHIELD', color: '#ffd700', icon: '🛡️' },
+        widePlatform: { label: 'WIDE', color: '#00d9ff', icon: '📏' },
+        magnet: { label: 'MAGNET', color: '#ff6b35', icon: '🧲' },
+        timeFreeze: { label: 'FREEZE', color: '#00ffff', icon: '⏸️' },
+        narrowPlatform: { label: 'NARROW', color: '#ff3333', icon: '📏', isPowerDown: true },
+        iceMode: { label: 'ICE', color: '#88ddff', icon: '🧊', isPowerDown: true },
+        blinkingEye: { label: 'BLINK', color: '#ff66ff', icon: '👁️', isPowerDown: true },
+        earthquake: { label: 'QUAKE', color: '#d2691e', icon: '📳', isPowerDown: true }
+    };
+    
+    for (const [key, config] of Object.entries(effectConfig)) {
+        if (effects[key] && effects[key].active) {
+            const remaining = Math.max(0, (effects[key].endTime - now) / 1000);
+            activeEffects.push({
+                ...config,
+                remaining: remaining,
+                key: key
+            });
+        }
+    }
+    
+    if (activeEffects.length === 0) return;
+    
+    ctx.save();
+    
+    const boxWidth = 70;
+    const boxHeight = 50;
+    const boxGap = 8;
+    const totalWidth = activeEffects.length * boxWidth + (activeEffects.length - 1) * boxGap;
+    const startX = (CANVAS.WIDTH - totalWidth) / 2;
+    const bottomPadding = 15;
+    const y = CANVAS.HEIGHT - boxHeight - bottomPadding;
+    
+    for (let i = 0; i < activeEffects.length; i++) {
+        const effect = activeEffects[i];
+        const x = startX + i * (boxWidth + boxGap);
+        
+        // Background box
+        ctx.fillStyle = effect.isPowerDown ? 'rgba(255, 50, 50, 0.2)' : 'rgba(0, 0, 0, 0.4)';
+        ctx.strokeStyle = effect.color;
+        ctx.lineWidth = 2;
+        
+        // Pulsing border when low time
+        if (effect.remaining < 3) {
+            const pulse = Math.sin(now * 0.01) * 0.5 + 0.5;
+            ctx.globalAlpha = 0.5 + pulse * 0.5;
+        }
+        
+        ctx.beginPath();
+        ctx.roundRect(x, y, boxWidth, boxHeight, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        
+        // Icon/Label
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.font = 'bold 11px Orbitron, sans-serif';
+        ctx.fillStyle = effect.color;
+        ctx.shadowColor = effect.color;
+        ctx.shadowBlur = 5;
+        ctx.fillText(effect.label, x + boxWidth / 2, y + 8);
+        
+        // Timer value
+        ctx.font = 'bold 18px Orbitron, sans-serif';
+        ctx.fillText(effect.remaining.toFixed(1) + 's', x + boxWidth / 2, y + 24);
+        ctx.shadowBlur = 0;
+    }
+    
+    ctx.restore();
+}
+
 // ==================== PLATFORM ====================
 
 export function drawPlatform() {
@@ -1496,6 +1578,7 @@ export function render() {
     drawMagnetEffect();
     drawBall();
     drawHUD();
+    drawEffectTimers();
     
     // Draw pause overlay
     if (state.gamePaused) {

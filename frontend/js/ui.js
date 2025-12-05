@@ -144,30 +144,8 @@ export function applySettingsToGame() {
 // ==================== GAME UI ====================
 
 export function updateUI() {
-    const { effects } = state;
-
-    // Power-up timers (these remain in the HTML stats bar)
-    updateEffectDisplay('shield', 'shieldDisplay', effects.shield);
-    updateEffectDisplay('widePlatform', 'widePlatformDisplay', effects.widePlatform);
-    updateEffectDisplay('magnet', 'magnetDisplay', effects.magnet);
-    updateEffectDisplay('timeFreeze', 'timeFreezeDisplay', effects.timeFreeze);
-    updateEffectDisplay('narrowPlatform', 'narrowPlatformDisplay', effects.narrowPlatform);
-    updateEffectDisplay('iceMode', 'iceModeDisplay', effects.iceMode);
-    updateEffectDisplay('blinkingEye', 'blinkingEyeDisplay', effects.blinkingEye);
-    updateEffectDisplay('earthquake', 'earthquakeDisplay', effects.earthquake);
-}
-
-function updateEffectDisplay(name, elementId, effect) {
-    const display = document.getElementById(elementId);
-    if (!display) return;  // Element might not exist
-    
-    if (effect && effect.active) {
-        const remaining = Math.max(0, (effect.endTime - Date.now()) / 1000).toFixed(1);
-        display.textContent = remaining + 's';
-        display.parentElement.style.display = 'block';
-    } else {
-        display.parentElement.style.display = 'none';
-    }
+    // All HUD elements are now drawn on canvas in renderer.js
+    // This function can be used for any remaining HTML updates if needed
 }
 
 // ==================== LEADERBOARD ====================

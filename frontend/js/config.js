@@ -2,8 +2,8 @@
 // All game constants and default settings
 
 export const CANVAS = {
-    WIDTH: 800,
-    HEIGHT: 600
+    WIDTH: 1000,
+    HEIGHT: 700
 };
 
 export const PHYSICS = {
@@ -16,8 +16,8 @@ export const PHYSICS = {
 };
 
 export const PLATFORM = {
-    INITIAL_X: 225,
-    Y: 450,
+    INITIAL_X: 325,
+    Y: 550,
     BASE_WIDTH: 350,
     HEIGHT: 12,
     MAX_TILT: 80,
@@ -27,7 +27,7 @@ export const PLATFORM = {
 };
 
 export const BALL = {
-    INITIAL_Y: 400,  // Starts above platform, falls down
+    INITIAL_Y: 500,  // Starts above platform, falls down
     BASE_RADIUS: 18,
     TRAIL_LENGTH: 15,
     SIZE_SHRUNK: 0.5,    // 50% of original

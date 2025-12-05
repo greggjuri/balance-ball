@@ -51,13 +51,13 @@ export const state = {
         tiltSpeed: PLATFORM.TILT_SPEED,
         moveSpeed: PLATFORM.MOVE_SPEED,
         minX: PLATFORM.MIN_X,
-        maxX: 400
+        maxX: 600  // Will be recalculated based on platform width
     },
     basePlatformWidth: PLATFORM.BASE_WIDTH,
 
     // Ball state
     ball: {
-        x: 400,
+        x: 500,
         y: BALL.INITIAL_Y,
         radius: BALL.BASE_RADIUS,
         vx: 0,
