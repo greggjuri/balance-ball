@@ -147,6 +147,12 @@ export function toggleMusic() {
     state.settings.musicEnabled = !state.settings.musicEnabled;
     saveSettings();
     
+    // Guard against bgMusic not being initialized
+    if (!bgMusic) {
+        console.log('Audio: bgMusic not initialized yet');
+        return;
+    }
+    
     if (state.settings.musicEnabled) {
         // If game has had input, start playing
         if (musicStarted) {
@@ -159,7 +165,7 @@ export function toggleMusic() {
     } else {
         // Fade out and pause
         fadeOut(() => {
-            bgMusic.pause();
+            if (bgMusic) bgMusic.pause();
         });
     }
 }
