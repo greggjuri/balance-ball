@@ -351,6 +351,17 @@ h1 {
     font-size: 0.9rem;
 }
 
+.music-credit {
+    color: #50fa7b;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.music-credit:hover {
+    color: #7dffab;
+    text-decoration: underline;
+}
+
 .toggle-switch {
     width: 50px;
     height: 26px;

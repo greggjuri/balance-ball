@@ -24,7 +24,7 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 | **N** | Move platform left |
 | **M** | Move platform right |
 | **P** | Pause/Resume game |
-| **Enter** | Restart game (when game over) |
+| **Space** | Restart game (when game over) |
 | **Escape** | Close settings/leaderboard |
 
 ## ✨ Features
@@ -39,7 +39,7 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 - **Frame-rate independent** - Consistent gameplay speed on all devices (30Hz to 144Hz+)
 
 ### 🏆 Online Leaderboard
-- **Global top 20** - Compete with players worldwide
+- **Global top 10** - Compete with players worldwide
 - **Submit your score** - Enter your name and an optional message
 - **Top 3 display** - See the best scores right on the game over screen
 
@@ -79,6 +79,7 @@ Control a platform by tilting and moving it horizontally to keep a ball balanced
 ### Customization (Settings ⚙️)
 - **Ball Color** - White, Red, or Black
 - **Platform Width** - Short, Normal, or Wide
+- **Music** - Toggle background music on/off
 - **Power-Ups** - Enable/disable individual power-ups
 - **Power-Downs** - Enable/disable individual power-downs
 
@@ -96,16 +97,19 @@ balance-ball/
 ├── index.html
 ├── css/
 │   └── styles.css
-└── js/
-    ├── main.js          # Game loop & initialization
-    ├── config.js        # Constants & settings
-    ├── state.js         # Game state management
-    ├── entities.js      # Ball, platform, black holes
-    ├── powerups.js      # Power-up system
-    ├── renderer.js      # Canvas drawing
-    ├── ui.js            # UI & leaderboard
-    ├── input.js         # Keyboard handling
-    └── leaderboard.js   # API calls
+├── js/
+│   ├── main.js          # Game loop & initialization
+│   ├── config.js        # Constants & settings
+│   ├── state.js         # Game state management
+│   ├── entities.js      # Ball, platform, black holes
+│   ├── powerups.js      # Power-up system
+│   ├── renderer.js      # Canvas drawing
+│   ├── ui.js            # UI & leaderboard
+│   ├── input.js         # Keyboard handling
+│   ├── audio.js         # Music & sound effects
+│   └── leaderboard.js   # API calls
+└── assets/
+    └── sounds/          # Audio files
 ```
 
 ### Backend (Render)
@@ -114,7 +118,7 @@ balance-ball/
 
 ### Database (Supabase)
 - PostgreSQL leaderboard table
-- Top 20 scores with names, dates, messages
+- Top 10 scores with names, dates, messages
 
 ## 🎨 Technical Details
 
@@ -122,7 +126,7 @@ balance-ball/
 - **HTML5 Canvas** - All game rendering
 - **CSS3** - UI styling with animations
 - **LocalStorage** - Persists settings and local best score
-- **Delta Time Physics** - Frame-rate independent gameplay
+- **Delta Time** - Frame-rate independent physics
 
 ### Browser Support
 - Chrome (recommended)
@@ -157,6 +161,7 @@ MIT License - feel free to use, modify, and distribute.
 
 - Developed with assistance from Claude AI
 - Inspired by classic balance and tilt games
+- 🎵 Music by [Boiling The Ocean](https://www.youtube.com/@boilingtheocean9441)
 
 ---
 

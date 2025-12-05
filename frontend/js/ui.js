@@ -211,7 +211,8 @@ export async function loadLeaderboard() {
     cachedLeaderboard = data;
     
     // Full leaderboard (top 10)
-    const fullHtml = generateLeaderboardHTML(data);
+    const top10Data = data ? data.slice(0, 10) : null;
+    const fullHtml = generateLeaderboardHTML(top10Data);
     
     // Mini leaderboard (top 3 only)
     const top3Data = data ? data.slice(0, 3) : null;
