@@ -2,7 +2,7 @@
 // API calls for online leaderboard
 
 // NEW
-const API_BASE = 'https://api.jurigregg.com/api/balance-ball';
+const API_BASE = 'https://api.jurigregg.com';
 
 // Fetch top 10 scores
 export async function fetchLeaderboard() {
