@@ -1,8 +1,8 @@
 // ==================== LEADERBOARD ====================
 // API calls for online leaderboard
 
-// API base URL - update this after deploying to Render
-const API_BASE = 'https://balance-ball-api.onrender.com';  
+// NEW
+const API_BASE = 'https://api.jurigregg.com/api/balance-ball';
 
 // Fetch top 10 scores
 export async function fetchLeaderboard() {
